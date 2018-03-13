@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { PosSystemComponent } from './pos-system/pos-system.component';
+import { StorageService } from './storage-service.service';
 
 
 @NgModule({
@@ -16,7 +17,9 @@ import { PosSystemComponent } from './pos-system/pos-system.component';
     BrowserModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [
+  	StorageService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

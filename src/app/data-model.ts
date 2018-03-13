@@ -3,6 +3,8 @@ export class LineItem {
   description: string;
   qty = 1;
   percentOff: number;
+  lineItemTotal: number;   // see if there is a way to make this auto-calculated.
+  totalSaved: number;
 }
 
 export class Product {
@@ -37,11 +39,39 @@ export const products: Product[] = [
   },
   {
     sku: 123,
-    name: 'Bontrager mtn bike gloves',
-    desc: 'size L, fingerless, gel pad',
-    price: 36.00,
-    stock: 4
+    name: 'Pearl Izumi Bike Helmet',
+    desc: 'size L, unisex, adjustable straps',
+    price: 139.00,
+    stock: 2
   },
+  {
+    sku: 219,
+    name: 'Ducky PC keyboard',
+    desc: '101 key, with number keypad, lighted keys, 3 color',
+    price: 149.00,
+    stock: 8
+  },
+  {
+    sku: 265,
+    name: 'Dell Monitor model 673GC',
+    desc: '27 inch, 4K, IPS',
+    price: 289.11,
+    stock: 7
+  },
+  {
+    sku: 244,
+    name: 'Logitech wireless mouse M132',
+    desc: 'Just a mouse',
+    price: 19.00,
+    stock: 14
+  },
+  {
+    sku: 588,
+    name: 'Google Pixel 2 XL',
+    desc: '128 Gig memory, Verizon, 5.2 inch screen',
+    price: 825.00,
+    stock: 41
+  }
 ];
 
 
