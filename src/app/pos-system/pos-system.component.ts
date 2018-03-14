@@ -18,6 +18,11 @@ export class PosSystemComponent implements OnInit {
   private orderTotal: number = 0.0;
   products = products;
   selectedProduct = null;
+  productMin: number = 1;
+  productMax: number = 0;
+  discountMax: number = 100;
+  quantityError: boolean = false;
+  discountError: boolean = false;
 
   constructor(private fb: FormBuilder, private storageService: StorageService) { 
   	this.createForm();
@@ -32,6 +37,20 @@ export class PosSystemComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  productSelected() {
+    this.productMax = this.posForm.value.product.stock;
+  }
+
+  quantityUpdated(qty) {
+    if (qty > this.productMax || qty < this.productMin) this.quantityError = true;
+    else this.quantityError = false;
+  }
+
+  discountUpdated(discount) {
+    if (discount > this.discountMax || discount < 0) this.discountError = true;
+    else this.discountError = false;
   }
 
   onSubmit() {
@@ -49,6 +68,11 @@ export class PosSystemComponent implements OnInit {
 
   addItem(product, qty, percentOff) {
   	//debugger;
+    // double check quantity one more time before adding.
+    this.quantityUpdated(qty);
+    this.discountUpdated(percentOff);
+    if (this.discountError == true || this.quantityError == true) return;
+
     this.order.push({
     	product: 1, 
     	description: product.name + ' - ' + product.desc, 
@@ -57,6 +81,8 @@ export class PosSystemComponent implements OnInit {
     	lineItemTotal: product.price * qty * (1.0 - percentOff / 100),
         totalSaved: product.price * percentOff / 100 * qty
     });
+    this.productMax -= qty;
+    product.stock -= qty;
     this.calculateTotal();
   }
 

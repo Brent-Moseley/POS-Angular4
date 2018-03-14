@@ -12,16 +12,14 @@ export class StorageService {
         // Simulate server latency with 2 second delay, do this eventually as an HTTP Get
         var data = JSON.parse(localStorage.getItem("POS2Order"));
         var set : LineItem[] = [];
-        debugger;
         data.forEach( line => {
         	set.push(<LineItem>line);
         }); 
-        setTimeout(() => resolve(set), 2500);
+        setTimeout(() => resolve(set), 1500);
       });
   }
 
     saveOrder(order: LineItem[]): void {   // returns a Promise of type Airport array.
-    	debugger;
     	localStorage.setItem("POS2Order", JSON.stringify(order));
   }
 }

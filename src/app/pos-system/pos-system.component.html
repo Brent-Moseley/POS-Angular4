@@ -15,7 +15,13 @@
     	  </label>
     	  <div class="col-sm-6 col-md-6 col-lg-6 control-group">
     	    <div class="input-group">
-    	      <input class="form-control" type="number" #qty formControlName="quantity" />
+    	      <input class="form-control" type="number" #qty formControlName="quantity" (blur)="quantityUpdated(qty.value)" />
+            <div>
+              Available quantity: {{productMax}}
+            </div>
+            <div *ngIf="quantityError" style="color:red">
+              Please enter a valid quantity for this product.
+            </div>
     	    </div>
     	  </div>
     	</div>
@@ -24,7 +30,7 @@
     	  </label>
         <div class="col-sm-6 col-md-6 col-lg-6 control-group">
           <div class="input-group">
-            <select [(ngModel)]="selectedProduct" formControlName="product">
+            <select [(ngModel)]="selectedProduct" formControlName="product" (change)="productSelected()">
               <option *ngFor="let product of products" [ngValue]="product">{{product.name}} - {{product.desc}}, {{product.price | currency}}</option>
             </select>
           </div>
@@ -35,7 +41,10 @@
     	  </label>
     	  <div class="col-sm-6 col-md-6 col-lg-6 control-group">
     	    <div class="input-group">
-    	      <input class="form-control" type="number" #percent_off formControlName="percent_off">
+    	      <input class="form-control" type="number" #percent_off formControlName="percent_off" (blur)="discountUpdated(percent_off.value)">
+            <div *ngIf="discountError" style="color:red">
+              Please enter a percent off discount between 0 and {{discountMax}}.
+            </div>
     	    </div>
     	  </div>
     	</div> 
