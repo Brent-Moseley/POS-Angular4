@@ -10,6 +10,17 @@
         <button type="reset" (click)="load()"
                 class="btn btn-danger">Load</button>
       </div>
+      <div class="form-group">
+        <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Product:
+        </label>
+        <div class="col-sm-6 col-md-6 col-lg-6 control-group">
+          <div class="input-group">
+            <select [(ngModel)]="selectedProduct" formControlName="product" (change)="productSelected()">
+              <option *ngFor="let product of products" [ngValue]="product">{{product.name}} - {{product.desc}}, {{product.price | currency}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
     	<div class="form-group">
     	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Quantity:
     	  </label>
@@ -24,17 +35,6 @@
             </div>
     	    </div>
     	  </div>
-    	</div>
-    	<div class="form-group">
-    	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Product:
-    	  </label>
-        <div class="col-sm-6 col-md-6 col-lg-6 control-group">
-          <div class="input-group">
-            <select [(ngModel)]="selectedProduct" formControlName="product" (change)="productSelected()">
-              <option *ngFor="let product of products" [ngValue]="product">{{product.name}} - {{product.desc}}, {{product.price | currency}}</option>
-            </select>
-          </div>
-        </div>
     	</div>   
     	<div class="form-group">
     	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Percent Off:
@@ -49,42 +49,7 @@
     	  </div>
     	</div> 
       <button (click)="addItem(selectedProduct, qty.value, percent_off.value)" type="button">Add Item</button>
-
-<!--     	<div  *ngFor="let lineItem of order">{{lineItem.qty}}: {{lineItem.description}} {{lineItem.percentOff}}% discount 
-    	</div> -->
     </form>
   </div>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h4>Order Summary:</h4>
-    </div>
-    <div class="row" *ngFor="let lineItem of order">
-      <div class="col-sm-offset-1 col-md-offset-1 col-xs-offset-1 col-md-2 col-sm-2 col-lg-2 col-xs-2">
-        Quantity: {{lineItem.qty}}
-      </div>
-      <div class="col-md-4 col-sm-4 col-lg-4 col-xs-4">
-        {{lineItem.description}}
-      </div>
-      <div class="col-md-2 col-sm-2 col-lg-2 col-xs-2">
-        Discount: {{lineItem.percentOff}}%
-      </div>
-      <div class="col-md-3 col-sm-3 col-lg-3 col-xs-3">
-        Line Item Total: {{lineItem.lineItemTotal | currency}}
-      </div>         
-    </div>
-    <hr>
-    <div class="row">
-      <div class="col-sm-offset-1 col-md-offset-1 col-xs-offset-1 col-md-2 col-sm-2 col-lg-2 col-xs-2">
-        Total Items: {{totalItems}}
-      </div>
-      <div class="col-md-4 col-sm-4 col-lg-4 col-xs-4">
-      </div>
-      <div class="col-md-2 col-sm-2 col-lg-2 col-xs-2">
-        Total Discount: {{totalDiscount | currency}}
-      </div>
-      <div class="col-md-3 col-sm-3 col-lg-3 col-xs-3">
-        Order Total: {{orderTotal | currency}}
-      </div>         
-    </div>    
-  </div>
+  <app-order-summary [order]="order" [summary]="summary"></app-order-summary>
 </div>

@@ -5,6 +5,7 @@ export class LineItem {
   percentOff: number;
   lineItemTotal: number;   // see if there is a way to make this auto-calculated.
   totalSaved: number;
+  sku: number;
 }
 
 export class Product {
@@ -13,6 +14,12 @@ export class Product {
   desc: string;
   price: number;
   stock: number;
+}
+
+export class Summary {
+  totalItems:  number = 0;
+  totalDiscount: number = 0.0;
+  orderTotal: number = 0.0;
 }
 
 export const products: Product[] = [

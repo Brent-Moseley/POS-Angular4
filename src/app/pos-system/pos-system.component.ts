@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 
-import { Product, products, LineItem } from '../data-model';
+import { Product, products, LineItem, Summary } from '../data-model';
 import { StorageService } from '../storage-service.service';
 
 @Component({
@@ -13,10 +13,9 @@ export class PosSystemComponent implements OnInit {
 
   posForm: FormGroup;
   order: LineItem[] = [];
-  private totalItems:  number = 0;
-  private totalDiscount: number = 0.0;
-  private orderTotal: number = 0.0;
+  summary: Summary = new Summary();
   products = products;
+  defaultStock: number[] = [];
   selectedProduct = null;
   productMin: number = 1;
   productMax: number = 0;
@@ -26,6 +25,11 @@ export class PosSystemComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private storageService: StorageService) { 
   	this.createForm();
+    // save default stock values
+    this.products.forEach(prod => {
+      this.defaultStock.push(prod.stock);
+    });
+
   }
 
   createForm() {
@@ -60,21 +64,28 @@ export class PosSystemComponent implements OnInit {
 
   load() {
     this.storageService.getOrder()
-      .then(order => {
+      .then(order => {   // handle resolve of promise, passing in [<LineItem>].
+        // reset stock quantities from defaults, then subtract all orders
+        this.products.forEach((prod, i) => {
+          prod.stock = this.defaultStock[i];
+          order.forEach(line => {
+            if (line.sku == prod.sku) prod.stock -= line.qty;  // Reduce stock based on order line.
+          });
+        });
+
         this.order = order;
         this.calculateTotal();
-      });  // handle resolve of promise, passing in [<LineItem>].
+      }); 
   }
 
   addItem(product, qty, percentOff) {
-  	//debugger;
     // double check quantity one more time before adding.
     this.quantityUpdated(qty);
     this.discountUpdated(percentOff);
     if (this.discountError == true || this.quantityError == true) return;
-
     this.order.push({
     	product: 1, 
+      sku: product.sku,
     	description: product.name + ' - ' + product.desc, 
     	qty: qty, 
     	percentOff: percentOff,
@@ -87,14 +98,21 @@ export class PosSystemComponent implements OnInit {
   }
 
   calculateTotal() {
-      this.totalItems = 0;
-      this.totalDiscount = 0.0;
-      this.orderTotal = 0.0;
+      var totalItems = 0;
+      var totalDiscount = 0.0;
+      var orderTotal = 0.0;
       this.order.forEach(item => {
-        this.totalItems += +item.qty;
-        this.orderTotal += item.lineItemTotal;
-        this.totalDiscount += item.totalSaved;
+        totalItems += +item.qty;
+        orderTotal += item.lineItemTotal;
+        totalDiscount += item.totalSaved;
       });
+
+      this.summary.totalItems = totalItems;
+      this.summary.totalDiscount = totalDiscount;
+      this.summary.orderTotal = orderTotal;
   }
 
 }
+
+
+// https://angular.io/guide/component-interaction

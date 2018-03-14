@@ -25,5 +25,8 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 	Use of DI
 	Animations, state transitions
 	Lifecycle hooks
+	Reactive forms
+	Angular material
+	NG Bootstrap
 	Template driven forms
 */

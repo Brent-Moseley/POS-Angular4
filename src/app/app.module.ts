@@ -6,12 +6,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { PosSystemComponent } from './pos-system/pos-system.component';
 import { StorageService } from './storage-service.service';
+import { OrderSummaryComponent } from './order-summary/order-summary.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    PosSystemComponent
+    PosSystemComponent,
+    OrderSummaryComponent
   ],
   imports: [
     BrowserModule,
