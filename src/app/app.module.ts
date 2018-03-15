@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { PosSystemComponent } from './pos-system/pos-system.component';
 import { StorageService } from './storage-service.service';
+import { InventoryLevelService } from './inventory-level-service.service';
 import { OrderSummaryComponent } from './order-summary/order-summary.component';
 
 
@@ -20,7 +21,8 @@ import { OrderSummaryComponent } from './order-summary/order-summary.component';
     ReactiveFormsModule
   ],
   providers: [
-  	StorageService
+  	StorageService,
+  	InventoryLevelService
   ],
   bootstrap: [AppComponent]
 })

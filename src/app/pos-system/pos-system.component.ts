@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 
-import { Product, products, LineItem, Summary } from '../data-model';
+import { Product, products, LineItem, Summary, InventoryRecord } from '../data-model';
 import { StorageService } from '../storage-service.service';
+import { InventoryLevelService } from '../inventory-level-service.service';
 
 @Component({
   selector: 'app-pos-system',
@@ -23,20 +24,33 @@ export class PosSystemComponent implements OnInit {
   quantityError: boolean = false;
   discountError: boolean = false;
 
-  constructor(private fb: FormBuilder, private storageService: StorageService) { 
+  constructor(private fb: FormBuilder, private storageService: StorageService, 
+      private inventoryService: InventoryLevelService) { 
   	this.createForm();
-    // save default stock values
-    this.products.forEach(prod => {
-      this.defaultStock.push(prod.stock);
+    this.inventoryService.getInventories()
+      .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
+        this.setStockLevels(inv);
+        // this.products.forEach(prod => {
+        //   inv.forEach(line => {
+        //     if (line.sku == prod.sku) prod.stock = line.stock;  // Set initial stock values from levels returned by service.
+        //   });
+        // });
     });
+  }
 
+  setStockLevels(inv: InventoryRecord[]) {
+    this.products.forEach(prod => {
+      inv.forEach(line => {
+        if (line.sku == prod.sku) prod.stock = line.stock;  // Set initial stock values from levels returned by service.
+      });
+    });
   }
 
   createForm() {
     this.posForm = this.fb.group({
       quantity: '',
       product: '',
-      percent_off: ''
+      percent_off: '0'
     });
   }
 
@@ -62,19 +76,27 @@ export class PosSystemComponent implements OnInit {
     // Do some sort of notification here that order was saved. 
   }
 
+  getInventory
+
   load() {
     this.storageService.getOrder()
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from defaults, then subtract all orders
-        this.products.forEach((prod, i) => {
-          prod.stock = this.defaultStock[i];
-          order.forEach(line => {
-            if (line.sku == prod.sku) prod.stock -= line.qty;  // Reduce stock based on order line.
+        this.inventoryService.getInventories()
+          .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
+            this.setStockLevels(inv);
+            this.products.forEach((prod) => {
+              order.forEach(line => {
+                if (line.sku == prod.sku) prod.stock -= line.qty;  // Reduce stock based on order line.
+              });
+            });
           });
-        });
 
         this.order = order;
         this.calculateTotal();
+        this.selectedProduct = this.products[0];
+        this.productMax = this.products[0].stock;
+        this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});
       }); 
   }
 
