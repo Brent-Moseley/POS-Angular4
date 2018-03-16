@@ -7,7 +7,7 @@ export class InventoryLevelService {
 
   constructor() { }
 
-  getInventories(): Promise<InventoryRecord[]> {   // returns a Promise of type Airport array.
+  getInventories(): Promise<InventoryRecord[]> {   // returns a Promise of type InventoryRecord array.
     return new Promise(resolve => {
         // Simulate server latency with 2 second delay, do this eventually as an HTTP Get
         setTimeout(() => resolve(inventories), 500);

@@ -30,18 +30,14 @@ export class PosSystemComponent implements OnInit {
     this.inventoryService.getInventories()
       .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
         this.setStockLevels(inv);
-        // this.products.forEach(prod => {
-        //   inv.forEach(line => {
-        //     if (line.sku == prod.sku) prod.stock = line.stock;  // Set initial stock values from levels returned by service.
-        //   });
-        // });
-    });
+      });
   }
 
   setStockLevels(inv: InventoryRecord[]) {
     this.products.forEach(prod => {
       inv.forEach(line => {
         if (line.sku == prod.sku) prod.stock = line.stock;  // Set initial stock values from levels returned by service.
+        // TODO:  see if break can be used when sku is found.
       });
     });
   }
@@ -76,12 +72,12 @@ export class PosSystemComponent implements OnInit {
     // Do some sort of notification here that order was saved. 
   }
 
-  getInventory
+  //getInventory
 
   load() {
     this.storageService.getOrder()
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
-        // reset stock quantities from defaults, then subtract all orders
+        // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
         this.inventoryService.getInventories()
           .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
             this.setStockLevels(inv);
@@ -105,6 +101,7 @@ export class PosSystemComponent implements OnInit {
     this.quantityUpdated(qty);
     this.discountUpdated(percentOff);
     if (this.discountError == true || this.quantityError == true) return;
+
     this.order.push({
     	product: 1, 
       sku: product.sku,

@@ -27,6 +27,7 @@ export class Summary {
   orderTotal: number = 0.0;
 }
 
+// This will eventually come from the catalog service. 
 export const products: Product[] = [
   {
     sku: 101,
