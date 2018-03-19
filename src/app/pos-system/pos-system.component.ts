@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Product, products, LineItem, Summary, InventoryRecord } from '../data-model';
 import { StorageService } from '../storage-service.service';
@@ -45,7 +45,7 @@ export class PosSystemComponent implements OnInit {
   createForm() {
     this.posForm = this.fb.group({
       quantity: '',
-      product: '',
+      product: ['', Validators.required],
       percent_off: '0'
     });
   }
@@ -109,7 +109,7 @@ export class PosSystemComponent implements OnInit {
     	qty: qty, 
     	percentOff: percentOff,
     	lineItemTotal: product.price * qty * (1.0 - percentOff / 100),
-        totalSaved: product.price * percentOff / 100 * qty
+      totalSaved: product.price * percentOff / 100 * qty
     });
     this.productMax -= qty;
     product.stock -= qty;
@@ -117,18 +117,18 @@ export class PosSystemComponent implements OnInit {
   }
 
   calculateTotal() {
-      var totalItems = 0;
-      var totalDiscount = 0.0;
-      var orderTotal = 0.0;
-      this.order.forEach(item => {
-        totalItems += +item.qty;
-        orderTotal += item.lineItemTotal;
-        totalDiscount += item.totalSaved;
-      });
+    var totalItems = 0;
+    var totalDiscount = 0.0;
+    var orderTotal = 0.0;
+    this.order.forEach(item => {
+      totalItems += +item.qty;
+      orderTotal += item.lineItemTotal;
+      totalDiscount += item.totalSaved;
+    });
 
-      this.summary.totalItems = totalItems;
-      this.summary.totalDiscount = totalDiscount;
-      this.summary.orderTotal = orderTotal;
+    this.summary.totalItems = totalItems;
+    this.summary.totalDiscount = totalDiscount;
+    this.summary.orderTotal = orderTotal;
   }
 
 }

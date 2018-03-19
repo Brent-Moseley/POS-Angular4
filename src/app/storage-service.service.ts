@@ -19,7 +19,7 @@ export class StorageService {
       });
   }
 
-    saveOrder(order: LineItem[]): void {   // returns a Promise of type Airport array.
+    saveOrder(order: LineItem[]): void {
     	localStorage.setItem("POS2Order", JSON.stringify(order));
   }
 }
