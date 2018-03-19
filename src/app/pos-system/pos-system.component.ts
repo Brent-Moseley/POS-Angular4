@@ -37,7 +37,7 @@ export class PosSystemComponent implements OnInit {
     this.products.forEach(prod => {
       inv.forEach(line => {
         if (line.sku == prod.sku) prod.stock = line.stock;  // Set initial stock values from levels returned by service.
-        // TODO:  see if break can be used when sku is found.
+        // TODO:  no way to break from forEach, refactor to use for loop with break for performance increase.
       });
     });
   }
