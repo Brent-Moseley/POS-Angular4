@@ -1,55 +1,57 @@
-<div class="container">
-  <div class="panel panel-default">
-    <div class="panel-heading">
+<div class="mdc-components">
+  <mat-card>
+    <mat-card-title>
       <h4>POS Order System</h4>
-    </div>
-    <form [formGroup]="posForm" (ngSubmit)="onSubmit()" role="form" class="panel-body form-horizontal" novalidate>
-      <div style="margin-bottom: 1em">
-        <button type="submit"
-                [disabled]="posForm.pristine" class="btn btn-success">Save</button> &nbsp;
-        <button type="reset" (click)="load()"
-                class="btn btn-danger">Load</button>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Product:
-        </label>
-        <div class="col-sm-6 col-md-6 col-lg-6 control-group">
-          <div class="input-group">
-            <select [(ngModel)]="selectedProduct" formControlName="product" (change)="productSelected()">
-              <option *ngFor="let product of products" [ngValue]="product">{{product.name}} - {{product.desc}}, {{product.price | currency}}</option>
-            </select>
+    </mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="posForm" (ngSubmit)="onSubmit()" role="form" class="panel-body form-horizontal" novalidate>
+        <div style="margin-bottom: 1em">
+          <button type="submit"
+                  [disabled]="posForm.pristine" class="btn btn-success">Save</button> &nbsp;
+          <button type="reset" (click)="load()"
+                  class="btn btn-danger">Load</button>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Product:
+          </label>
+          <div class="col-sm-6 col-md-6 col-lg-6 control-group">
+            <div class="input-group">
+              <select [(ngModel)]="selectedProduct" formControlName="product" (change)="productSelected()">
+                <option *ngFor="let product of products" [ngValue]="product">{{product.name}} - {{product.desc}}, {{product.price | currency}}</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-    	<div class="form-group">
-    	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Quantity:
-    	  </label>
-    	  <div class="col-sm-6 col-md-6 col-lg-6 control-group">
-    	    <div class="input-group">
-    	      <input class="form-control" type="number" #qty formControlName="quantity" (blur)="quantityUpdated(qty.value)" />
-            <div>
-              Available quantity: {{productMax}}
-            </div>
-            <div *ngIf="quantityError" style="color:red">
-              Please enter a valid quantity for this product.
-            </div>
-    	    </div>
-    	  </div>
-    	</div>   
-    	<div class="form-group">
-    	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Percent Off:
-    	  </label>
-    	  <div class="col-sm-6 col-md-6 col-lg-6 control-group">
-    	    <div class="input-group">
-    	      <input class="form-control" type="number" #percent_off formControlName="percent_off" (blur)="discountUpdated(percent_off.value)">
-            <div *ngIf="discountError" style="color:red">
-              Please enter a percent off discount between 0 and {{discountMax}}.
-            </div>
-    	    </div>
-    	  </div>
-    	</div> 
-      <button (click)="addItem(selectedProduct, qty.value, percent_off.value)" type="button">Add Item</button>
-    </form>
-  </div>
+      	<div class="form-group">
+      	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Quantity:
+      	  </label>
+      	  <div class="col-sm-6 col-md-6 col-lg-6 control-group">
+      	    <div class="input-group">
+      	      <input class="form-control" type="number" #qty formControlName="quantity" (blur)="quantityUpdated(qty.value)" />
+              <div>
+                Available quantity: {{productMax}}
+              </div>
+              <div *ngIf="quantityError" style="color:red">
+                Please enter a valid quantity for this product.
+              </div>
+      	    </div>
+      	  </div>
+      	</div>   
+      	<div class="form-group">
+      	  <label class="col-sm-offset-1 col-sm-3 col-md-offset-1 col-md-3 col-lg-offset-1 col-lg-3 control-label">Percent Off:
+      	  </label>
+      	  <div class="col-sm-6 col-md-6 col-lg-6 control-group">
+      	    <div class="input-group">
+      	      <input class="form-control" type="number" #percent_off formControlName="percent_off" (blur)="discountUpdated(percent_off.value)">
+              <div *ngIf="discountError" style="color:red">
+                Please enter a percent off discount between 0 and {{discountMax}}.
+              </div>
+      	    </div>
+      	  </div>
+      	</div> 
+        <button (click)="addItem(selectedProduct, qty.value, percent_off.value)" type="button">Add Item</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
   <app-order-summary [order]="order" [summary]="summary"></app-order-summary>
 </div>

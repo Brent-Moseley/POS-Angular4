@@ -135,3 +135,10 @@ export class PosSystemComponent implements OnInit {
 
 
 // https://angular.io/guide/component-interaction
+// https://material.angular.io/guide/getting-started
+// https://material.angularjs.org/1.0.5/demo/toast
+// https://material.angular.io/components/table/overview
+// https://material.angular.io/guide/theming
+// https://material.angularjs.org/1.1.0/demo/colors
+// https://material.io/guidelines/style/color.html#color-color-system
+// Puerto Banus
