@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef  } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 import { Product, products, LineItem, Summary, InventoryRecord } from '../data-model';
 import { StorageService } from '../storage-service.service';
@@ -23,9 +24,12 @@ export class PosSystemComponent implements OnInit {
   discountMax: number = 100;
   quantityError: boolean = false;
   discountError: boolean = false;
+  loading: boolean = false;
 
   constructor(private fb: FormBuilder, private storageService: StorageService, 
-      private inventoryService: InventoryLevelService) { 
+      private inventoryService: InventoryLevelService, public toastr: ToastsManager,
+      vcr: ViewContainerRef) { 
+    this.toastr.setRootViewContainerRef(vcr);
   	this.createForm();
     this.inventoryService.getInventories()
       .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
@@ -69,12 +73,14 @@ export class PosSystemComponent implements OnInit {
 
   onSubmit() {
     this.storageService.saveOrder(this.order);
+    this.toastr.success('Order saved.', 'Success!');
     // Do some sort of notification here that order was saved. 
   }
 
   //getInventory
 
   load() {
+    this.loading = true;
     this.storageService.getOrder()
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
@@ -93,6 +99,7 @@ export class PosSystemComponent implements OnInit {
         this.selectedProduct = this.products[0];
         this.productMax = this.products[0].stock;
         this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});
+        this.loading = false;
       }); 
   }
 
@@ -114,6 +121,7 @@ export class PosSystemComponent implements OnInit {
     this.productMax -= qty;
     product.stock -= qty;
     this.calculateTotal();
+    this.toastr.success('Item added.', 'Success!');
   }
 
   calculateTotal() {
