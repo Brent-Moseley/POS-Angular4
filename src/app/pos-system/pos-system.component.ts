@@ -35,6 +35,12 @@ export class PosSystemComponent implements OnInit {
       .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
         this.setStockLevels(inv);
       });
+
+    let lnum = 0;
+    storageService.searchResults.subscribe({
+      next(line) { lnum++; console.log('Current Order line ' + lnum + ': ', line); },
+      error(msg) { console.log('Error Getting Lines: ', msg); }
+    });
   }
 
   setStockLevels(inv: InventoryRecord[]) {
@@ -122,6 +128,11 @@ export class PosSystemComponent implements OnInit {
     product.stock -= qty;
     this.calculateTotal();
     this.toastr.success('Item added.', 'Success!');
+  }
+
+  search(val) {
+    // Use observable to implement a search feature, find a line item, return in a separate results box, which is a new component.
+    
   }
 
   calculateTotal() {

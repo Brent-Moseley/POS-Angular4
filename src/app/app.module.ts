@@ -10,13 +10,15 @@ import { PosSystemComponent } from './pos-system/pos-system.component';
 import { StorageService } from './storage-service.service';
 import { InventoryLevelService } from './inventory-level-service.service';
 import { OrderSummaryComponent } from './order-summary/order-summary.component';
+import { SearchResultsComponent } from './search-results/search-results.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     PosSystemComponent,
-    OrderSummaryComponent
+    OrderSummaryComponent,
+    SearchResultsComponent
   ],
   imports: [
     BrowserModule,
