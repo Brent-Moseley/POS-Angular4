@@ -16,9 +16,12 @@ export class SearchResultsComponent implements OnInit {
   }
 
   search(pattern: string) {
+  	this.searchResults = [];
+
+  	// call the search method of the storage service, passing in an observer object to handle the results
   	this.storageService.search(pattern, {
-	  next(line: LineItem) { console.log(line); },
-	  complete() { console.log('Finished sequence'); }
+	  next: line => { console.log(line); this.searchResults.push(line);  },
+	  complete: () => { console.log('Finished sequence'); }
 	});
   }
 

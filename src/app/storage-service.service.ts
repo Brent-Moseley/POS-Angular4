@@ -25,24 +25,25 @@ export class StorageService {
     	localStorage.setItem("POS2Order", JSON.stringify(order));
   }
 
-  search(pattern: string, observer): Observable<LineItem> {
+  search(pattern: string, observer) {
+    // Set up a new search, saving the pattern and subscribing to the Observable with the new observer
+    console.log('Now searching for: ' + pattern);
     this.searchPattern = pattern;
-    return this.searchResults;
+    this.searchResults.subscribe(observer);
   }
 
   // Observable pattern, use as an alternate way to get an order. 
+  // Define the search results observable (of type LineItem), to return each discovered line item
   searchResults: Observable<LineItem> = new Observable((observer) => {
-    // Get the next and error callbacks. These will be passed in when
-    // the consumer subscribes.
-    //const {next, error} = observer;
-
     var data = JSON.parse(localStorage.getItem("POS2Order"));
     data.forEach( line => {
-      observer.next(<LineItem>line);  // cast each generic object to a LineItem
+      let li = <LineItem>line;   // cast each generic object to a LineItem
+      if (li.description.indexOf(this.searchPattern) > -1) observer.next(<LineItem>line);  // if a match, call the next function of the observer with this line item
     }); 
+    observer.complete();
 
     // When the consumer unsubscribes, clean up data ready for next subscription.
-    return {unsubscribe() { }};
+    return {unsubscribe() { this.searchPattern = ''; }};
   });
 }
 
