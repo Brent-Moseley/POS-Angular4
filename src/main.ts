@@ -46,6 +46,6 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 	https://angular.io/guide/observables
 	https://angular.io/guide/comparing-observables
 	https://toddmotto.com/rxjs-observables-observers-operators
-
+	https://codecraft.tv/courses/angular/components/lifecycle-hooks/
 
 */

@@ -15,4 +15,9 @@ export class OrderSummaryComponent implements OnInit {
   ngOnInit() {
   }
 
+  ngOnChanges() {
+  	console.log('Change to an input property of OrderSummaryComponent:');
+  	console.log('    data is ', this.order, ' ', this.summary);
+  }
+
 }
