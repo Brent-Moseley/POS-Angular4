@@ -4,7 +4,9 @@ import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 import { Product, products, LineItem, Summary, InventoryRecord } from '../data-model';
 import { StorageService } from '../storage-service.service';
+import { ModalService } from '../modal-service.service';
 import { InventoryLevelService } from '../inventory-level-service.service';
+import $ = require('jquery');
 
 @Component({
   selector: 'app-pos-system',
@@ -26,11 +28,16 @@ export class PosSystemComponent implements OnInit {
   discountError: boolean = false;
   loading: boolean = false;
 
-  constructor(private fb: FormBuilder, private storageService: StorageService, 
+  constructor(private fb: FormBuilder, private storageService: StorageService, private modalService: ModalService,
       private inventoryService: InventoryLevelService, public toastr: ToastsManager,
       vcr: ViewContainerRef) { 
     this.toastr.setRootViewContainerRef(vcr);
   	this.createForm();
+    this.modalService.modalResponseSource$.subscribe(
+      response => {
+        console.log('modal reply: ' + response);
+      }
+    );
     this.inventoryService.getInventories()
       .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
         this.setStockLevels(inv);
@@ -86,6 +93,12 @@ export class PosSystemComponent implements OnInit {
   //getInventory
 
   load() {
+    if (this.order.length > 0)  {
+      this.modalService.setModalTitle('Warning!');
+      this.modalService.setModalBody('Loading will wipe out your current order. Continue?');
+      $('#messageModal').show();
+    }
+
     this.loading = true;
     this.storageService.getOrder()
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
