@@ -33,11 +33,6 @@ export class PosSystemComponent implements OnInit {
       vcr: ViewContainerRef) { 
     this.toastr.setRootViewContainerRef(vcr);
   	this.createForm();
-    this.modalService.modalResponseSource$.subscribe(
-      response => {
-        console.log('modal reply: ' + response);
-      }
-    );
     this.inventoryService.getInventories()
       .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
         this.setStockLevels(inv);
@@ -97,8 +92,17 @@ export class PosSystemComponent implements OnInit {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your current order. Continue?');
       $('#messageModal').show();
+        this.modalService.modalResponseSource$.subscribe(
+          response => {
+            console.log('modal reply: ' + response);
+            if (response) this.loadAll();
+          }
+        );
     }
+    else this.loadAll();
+  }
 
+  loadAll() {
     this.loading = true;
     this.storageService.getOrder()
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
