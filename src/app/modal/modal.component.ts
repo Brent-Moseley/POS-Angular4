@@ -10,6 +10,8 @@ import $ = require('jquery');
 export class ModalComponent implements OnInit {
   title: string = '';
   body: string = '';
+  buttonPrimary: string = '';
+  buttonSecondary: string = '';
 
   constructor(private modalService: ModalService) {
     this.modalService.modalTitleSource$.subscribe(
@@ -23,6 +25,16 @@ export class ModalComponent implements OnInit {
       body => {
         this.body = body;
         console.log('body: ' + body);
+      }
+    );
+    this.modalService.modalButtonPrimary$.subscribe(
+      text => {
+        this.buttonPrimary = text;
+      }
+    );
+    this.modalService.modalButtonSecondary$.subscribe(
+      text => {
+        this.buttonSecondary = text;
       }
     );
   }

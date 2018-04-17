@@ -11,8 +11,8 @@
         <p>{{body}}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" (click)="close(true);">Continue</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="close(false);">Cancel</button>
+        <button [hidden]="buttonPrimary.length == 0" type="button" class="btn btn-primary" (click)="close(true);">{{buttonPrimary}}</button>
+        <button [hidden]="buttonSecondary.length == 0" type="button" class="btn btn-secondary" data-dismiss="modal" (click)="close(false);">{{buttonSecondary}}</button>
       </div>
     </div>
   </div>

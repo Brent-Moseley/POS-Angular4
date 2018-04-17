@@ -91,6 +91,7 @@ export class PosSystemComponent implements OnInit {
     if (this.order.length > 0)  {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your current order. Continue?');
+      this.modalService.setButtons('Continue', 'Cancel');
       $('#messageModal').show();
         this.modalService.modalResponseSource$.subscribe(
           response => {
