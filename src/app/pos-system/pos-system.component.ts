@@ -172,3 +172,7 @@ export class PosSystemComponent implements OnInit {
 
 
 // https://angular.io/guide/component-interaction
+// https://hackernoon.com/best-practices-learnt-from-delivering-a-quality-angular4-application-2cd074ea53b3
+// Confirm good design practices:  do my components only have logic related to the view?  Are data structural / processing tasks left
+// to the services?
+// How to make better use of interfaces?  Extending classes?

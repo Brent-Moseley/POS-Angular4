@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+
+    <style type="text/css">
+
+        form.ng-dirty > button:first-child > md-icon,
+        form.ng-dirty > button:last-child > md-icon{
+          color: lightpink;
+        }
+        .step-tile {
+          background: #f5f5f5;
+        }
+        .step-tile0 {
+          background: #80d8ff;
+        }
+        .step-tile1 {
+          background: #b9f6ca;
+        }
+        .step-tile2 {
+          background: #ffff8d;
+        }
+        .step-tile3 {
+          background: #84ffff;
+        }
+        .step-tile4 {
+          background: #8c9eff;
+        }
+        .light {
+          background: lightgray !important;
+        }
+        .dark {
+            background: #353535 !important;
+        }
+        .hint {
+            /* Position the hint */
+            /* Copy styles from ng-messages */
+            font-size: 12px;
+            line-height: 14px;
+            /* transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2); */
+            /* Set our own color */
+            color: grey;
+            margin-top: 3px;
+        }
+
+            .hint.ng-hide,
+            .hint.ng-enter,
+            .hint.ng-leave.ng-leave-active {
+                bottom: 26px;
+                opacity: 0;
+            }
+
+                .hint.ng-leave,
+                .hint.ng-enter.ng-enter-active {
+                    bottom: 7px;
+                    opacity: 1;
+                }
+    </style>
+</head>
+<body ng-app="ProtoApp" ng-cloak ng-controller="OptionsController as opt"
+    md-theme="{{$storage.useDarkTheme ? 'dark' : 'blue-grey'}}"
+    ng-class="{'light': !$storage.useDarkTheme, 'dark': $storage.useDarkTheme}" >
+
+    <!-- Options Control -->
+    <md-sidenav class="md-sidenav-left" md-component-id="left" md-whiteframe="4" layout-fill
+      ng-class="{'dark': $storage.useDarkTheme}">
+        <md-toolbar layout-align="start center" >
+          <div class="md-toolbar-tools" >
+              <h2>Options</h2>
+          </div>
+        </md-toolbar>
+        <md-content layout="column" ng-class="{'dark': $storage.useDarkTheme}" >
+
+            <!-- Interface Settings -->
+            <section>
+                <md-subheader class="md-secondary">Interface Settings</md-subheader>
+                <md-list>
+                    <md-list-item ng-click="$storage.useDarkTheme = !$storage.useDarkTheme">
+                        <p>Use Dark Theme</p>
+                        <md-switch class="md-secondary" ng-model="$storage.useDarkTheme"></md-switch>
+                    </md-list-item>
+                    <md-list-item ng-click="$storage.useLocalStorage = !$storage.useLocalStorage">
+                        <p>Use Local Storage</p>
+                        <md-switch class="md-secondary" ng-model="$storage.useLocalStorage"></md-switch>
+                    </md-list-item>
+                </md-list>
+            </section>
+
+            <!-- Component Settings -->
+            <section ng-if="componentOptions.items">
+                <md-subheader class="md-secondary">{{componentOptions.title}}</md-subheader>
+                <md-list>
+                    <md-list-item ng-repeat="item in componentOptions.items" ng-click="item.value = !item.value">
+                        <md-icon ng-if="item.icon">{{item.icon}}</md-icon>
+                        <p>{{item.text}}</p>
+                        <md-switch class="md-secondary" ng-model="item.value"></md-switch>
+                    </md-list-item>
+                </md-list>
+            </section>
+
+        </md-content>
+    </md-sidenav>
+
+
+    <!-- Main View -->
+    <md-content layout-padding layout-xs="column" layout="row"
+      ng-class="{'light': !$storage.useDarkTheme, 'dark': $storage.useDarkTheme}">
+
+        <div ng-view flex layout="column" > </div>
+    </md-content>
+
+    <!-- IVR Editor Template -->
+    <script type="text/ng-template" id="/ivr.tpl">
+
+        <md-toolbar md-whiteframe="1" >
+            <div class="md-toolbar-tools">
+              <md-button class="md-icon-button" ng-click="ivr.toggleSidebar()">
+                  <md-icon class="material-icons">menu</md-icon>
+              </md-button>
+              <h2 layout-margin>
+                    <span>IVR Editor</span>
+                </h2>
+                <span flex></span>
+                <md-input-container md-no-float style="margin-top: 40px;">
+                    <md-icon >search</md-icon>
+                    <input ng-model="ivr.itemFilter" placeholder="Search" style="color: white;">
+                </md-input-container>
+                <md-button type="submit" form="ivr.settingsForm" class="md-icon-button" ng-click="ivr.showOptions()">
+                    <md-icon>more_vert</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+      <div layout-gt-sm="row" flex>
+            <div layout="column" flex-gt-sm="30">
+
+                <!-- Configuration -->
+                <md-card>
+
+                    <md-card-header>
+                        <md-card-avatar>
+                            <md-icon class="maerial-icons">settings</md-icon>
+                        </md-card-avatar>
+                        <md-card-header-text>
+                            <span class="md-title">Settings</span>
+                            <span class="md-subhead" ng-if="ivr.showHints">Basic IVR configuration.</span>
+                        </md-card-header-text>
+                    </md-card-header>
+
+                    <md-card-content>
+                      <form layout="column" id="settingsForm" name="ivr.settingsForm" ng-submit="ivr.save($event)">
+
+                            <md-input-container class="md-block">
+                                <label>Name</label>
+                                <input md-maxlength="512" required ng-model="ivr.model.Description">
+                            </md-input-container>
+                            <md-input-container class="md-block">
+                                <label>Type</label>
+                                <md-select required ng-model="ivr.model.TypeID">
+                                    <md-option ng-repeat="type in ivr.types.ivrTypes" value="{{type.TypeID}}">
+                                        {{type.Description}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container class="md-block">
+                                <label>Direction</label>
+                                <md-select required ng-model="ivr.model.DirectionID">
+                                    <md-option ng-repeat="type in ivr.types.ivrDirections" value="{{type.DirectionID}}">
+                                        {{type.Description}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container class="md-block">
+                                <label>Info Service URL</label>
+                                <md-select required ng-model="ivr.model.DefaultInfoServiceURL">
+                                    <md-option ng-repeat="type in ivr.types.callinfoTypes" value="{{type}}">
+                                        {{type}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+
+
+                        </form>
+                    </md-card-content>
+                </md-card>
+
+            </div>
+
+            <div layout="column" flex>
+
+                <!-- Steps -->
+                <md-card >
+
+                    <md-card-header style="padding-bottom: 0;">
+                        <md-card-avatar>
+                            <md-icon class="maerial-icons">apps</md-icon>
+                        </md-card-avatar>
+                        <md-card-header-text>
+                            <span class="md-title">Steps</span>
+                            <span class="md-subhead" ng-if="ivr.showHints">IVR Menus and Flow.</span>
+                        </md-card-header-text>
+                        <div class="flex"></div>
+                        <md-button class="md-fab md-mini md-raised" ng-click="ivr.steps.add($event)">
+                            <md-icon class="material-icons">add</md-icon>
+                        </md-button>
+                    </md-card-header>
+
+                    <md-card-content style="padding-top: 0" layout-margin>
+                        <md-grid-list md-cols="4" md-cols-xs="2" md-cols-gt-md="5"
+                                       md-row-height="4:3"
+                                      md-gutter="8px" md-gutter-gt-sm="4px">
+                            <md-grid-tile ng-if="step.StepID != -1" class="step-tile step-tile{{step.StepTypeID}}" ng-click="ivr.editStep(step, $event)"
+                                          ng-repeat="step in ivr.steps.data | filter:ivr.itemFilter">
+                                <md-icon ng-if="step.StepTypeID == 0">menu</md-icon>
+                                <md-icon ng-if="step.StepTypeID == 1">exit_to_app</md-icon>
+                                <md-icon ng-if="step.StepTypeID == 2">voicemail</md-icon>
+                                <md-icon ng-if="step.StepTypeID == 3">hearing</md-icon>
+                                <md-icon ng-if="step.StepTypeID == 4">bookmark</md-icon>
+                                <md-grid-tile-footer>
+                                    <h3 >{{step.Name}}</h3>
+                                </md-grid-tile-footer>
+                            </md-grid-tile>
+                        </md-grid-list>
+                    </md-card-content>
+                </md-card>
+
+                <!-- Variables -->
+                <md-card>
+
+                    <md-card-header>
+                        <md-card-avatar>
+                            <md-icon class="maerial-icons">widgets</md-icon>
+                        </md-card-avatar>
+                        <md-card-header-text>
+                            <span class="md-title">Call Variables</span>
+                            <span class="md-subhead" ng-if="ivr.showHints">Configurable IVR state</span>
+                        </md-card-header-text>
+                    </md-card-header>
+
+                    <md-card-content>
+
+                        <md-chips placeholder="Enter a name"
+                                  ng-model="ivr.variables.data"
+                                  md-removable="true"
+                                  md-enable-chip-edit="true"
+                                  md-transform-chip="ivr.variables.add($chip)">
+                            <md-chip-template >
+                                <md-icon ng-if="$chip.ValueTypeID == 0">settings_ethernet</md-icon>
+                                <md-icon ng-if="$chip.ValueTypeID == 1">share</md-icon>
+                                <md-icon ng-if="$chip.ValueTypeID == 2">looks_one</md-icon>
+                                <md-icon ng-if="$chip.ValueTypeID == 3">gesture</md-icon>
+                                <md-icon ng-if="$chip.ValueTypeID == 4">library_music</md-icon>
+                                <md-icon ng-if="$chip.ValueTypeID == 5">phone</md-icon>
+                                <md-icon ng-if="$chip.ValueTypeID == 6">find_in_page</md-icon>
+                                <span >{{$chip.Name}}</span>
+                            </md-chip-template>
+                        </md-chips>
+
+                    </md-card-content>
+                </md-card>
+            </div>
+        </div>
+
+    </script>
+
+    <!-- Step Editor Template -->
+    <script type="text/ng-template" id="/step.tpl">
+        <form name="step.settingsForm" id="settingsForm" >
+
+            <md-toolbar md-whiteframe="1" >
+                <div class="md-toolbar-tools">
+                    <md-button class="md-icon-button" ng-click="step.toggleSidebar()">
+                        <md-icon class="material-icons">menu</md-icon>
+                    </md-button>
+                    <h2 layout-margin>
+                        <span>Step Editor</span>
+                    </h2>
+                    <span flex></span>
+                    <md-input-container md-no-float style="margin-top: 40px;">
+                        <md-icon class="material-icons">search</md-icon>
+                        <input ng-model="step.itemFilter" placeholder="Search" style="color: white;">
+                    </md-input-container>
+                    <md-button class="md-icon-button" ng-click="step.showOptions($event)">
+                        <md-icon class="material-icons">more_vert</md-icon>
+                    </md-button>
+                </div>
+            </md-toolbar>
+
+            <div layout-gt-sm="row" flex>
+                <div layout="column" flex-gt-sm="30">
+
+                    <!-- Configuration -->
+                    <md-card >
+
+                        <md-card-header >
+                            <md-card-avatar>
+                                <md-icon class="maerial-icons">settings</md-icon>
+                            </md-card-avatar>
+                            <md-card-header-text>
+                                <span class="md-title">Settings</span>
+                                <span class="md-subhead" >Basic step configuration.</span>
+                            </md-card-header-text>
+                        </md-card-header>
+
+                        <md-card-content layout-padding layout-margin>
+
+
+
+                                    <md-input-container class="md-block" flex-gt-sm>
+                                        <label>Name</label>
+                                        <input md-maxlength="50" required ng-model="step.model.Name">
+                                    </md-input-container>
+
+
+                                    <md-input-container class="md-block" flex-gt-sm>
+                                        <label>Type</label>
+                                        <md-select ng-model="step.model.StepTypeID">
+                                            <md-option ng-repeat="type in step.types.stepTypes" value="{{type.StepTypeID}}">
+                                                {{type.Description}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+
+                                    <md-input-container class="md-block" flex-gt-sm>
+                                        <label>Terminator</label>
+                                        <md-select ng-model="step.model.Terminator" required ng-disabled="step.model.StepTypeID > 2">
+                                            <md-option ng-repeat="terminator in step.types.dtmfTypes" value="{{terminator}}">
+                                                {{terminator}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+
+                                <div flex layout="row">
+                                    <md-slider-container flex ng-disabled="step.model.StepTypeID > 2">
+                                        <md-input-container class="md-block" flex-gt-sm>
+                                            <input type="number" min="0" ng-model="step.model.MinDigits">
+                                        </md-input-container>
+                                        <md-slider md-discrete min="0" max="20" step="1" ng-model="step.model.MinDigits"
+                                                   aria-label="Min DTMF" id="min-dtmf-slider" md-vertical
+                                                   ng-readonly="step.model.StepTypeID > 2">
+                                        </md-slider>
+                                        <h5>Min DTMF</h5>
+                                    </md-slider-container>
+                                    <md-slider-container flex ng-disabled="step.model.StepTypeID > 2">
+                                        <md-input-container class="md-block" flex-gt-sm>
+                                            <input type="number" min="0" ng-model="step.model.MaxDigits">
+                                        </md-input-container>
+                                        <md-slider md-discrete min="0" max="20" step="1" ng-model="step.model.MaxDigits"
+                                                   aria-label="Max DTMF" id="max-dtmf-slider" md-vertical
+                                                   ng-readonly="step.model.StepTypeID > 2">
+                                        </md-slider>
+                                        <h5>Max DTMF</h5>
+                                    </md-slider-container>
+                                    <md-slider-container flex ng-disabled="step.model.StepTypeID > 2">
+                                        <md-input-container class="md-block" flex-gt-sm>
+                                            <input type="number" min="0" ng-model="step.model.MaxAttempts">
+                                        </md-input-container>
+                                        <md-slider md-discrete min="0" max="10" step="1" ng-model="step.model.MaxAttempts"
+                                                   aria-label="Max Attempts" id="attempts-slider" md-vertical
+                                                   ng-readonly="step.model.StepTypeID > 2">
+                                        </md-slider>
+                                        <h5>Attempts</h5>
+                                    </md-slider-container>
+                                    <md-slider-container flex ng-disabled="step.model.StepTypeID > 2">
+                                        <md-input-container class="md-block" flex-gt-sm>
+                                            <input type="number" min="0" step=".5" ng-model="step.model.Timeout" milliseconds>
+                                        </md-input-container>
+                                        <md-slider md-discrete min="0" max="60000" step="500" ng-model="step.model.Timeout"
+                                                   aria-label="Timeout" id="timeout-slider" md-vertical
+                                                   ng-readonly="step.model.StepTypeID > 2">
+                                        </md-slider>
+                                        <h5>Timeout</h5>
+                                    </md-slider-container>
+                                </div>
+
+                                
+
+                        </md-card-content>
+                    </md-card>
+
+                </div>
+                <div layout="column" flex>
+
+                    <!-- Media -->
+                    <md-card ng-hide="step.model.StepTypeID == 4">
+
+                        <md-card-header style="padding-bottom: 0;">
+                            <md-card-avatar>
+                                <md-icon class="maerial-icons">phone_in_talk</md-icon>
+                            </md-card-avatar>
+                            <md-card-header-text>
+                                <span class="md-title">Media</span>
+                                <span class="md-subhead" >Primary and secondary phrases.</span>
+                            </md-card-header-text>
+                        </md-card-header>
+
+                        <md-card-content layout-gt-xs="row" layout-margin layout-padding style="padding-top: 0;padding-bottom: 0;">
+
+                                <md-input-container class="md-block" flex>
+                                    <label>Primary Phrase</label>
+                                    <md-select ng-model="step.model.EntryPhraseID" 
+                                        ng-change="step.phrases.add($event, step.model, 'EntryPhraseID', '{{step.model.EntryPhraseID}}')">
+                                        <md-option ng-repeat="phrase in step.phrases.data" value="{{phrase.PhraseID}}">
+                                            {{phrase.Description}}
+                                        </md-option>
+                                    </md-select>
+                                    <div class="hint" >
+                                        Played on first input cycle and if secondary phrase is not set.
+                                    </div>
+                                </md-input-container>
+                                <md-input-container class="md-block" flex>
+                                    <label>Secondary Phrase</label>
+                                    <md-select ng-model="step.model.ErrorPhraseID" ng-change="step.phrases.add($event, step.model, 'ErrorPhraseID', '{{step.model.ErrorPhraseID}}')">
+                                        <md-option ng-repeat="phrase in step.phrases.data" value="{{phrase.PhraseID}}">
+                                            {{phrase.Description}}
+                                        </md-option>
+                                    </md-select>
+                                    <div class="hint" >
+                                        Played after the first input cycle.
+                                    </div>
+                                </md-input-container>
+                        </md-card-content>
+                    </md-card>
+
+                    <!-- On Load -->
+                    <md-card ng-hide="step.model.StepTypeID == 3">
+
+                        <md-card-header style="padding-bottom: 0;">
+                            <md-card-avatar>
+                                <md-icon class="maerial-icons">settings_ethernet</md-icon>
+                            </md-card-avatar>
+                            <md-card-header-text>
+                                <span class="md-title">On Load</span>
+                                <span class="md-subhead" >Executed prior to first input cycle or module load.</span>
+                            </md-card-header-text>
+                            <div class="flex"></div>
+                            <md-button class="md-fab md-mini md-raised" ng-click="step.model.actions.addPreAction()">
+                                <md-icon class="material-icons">add</md-icon>
+                            </md-button>
+                        </md-card-header>
+
+                        <md-card-content style="padding-top: 0;">
+                            <!-- The div is a firefox fix -->
+                            <div layout="row" layout-align="start center"
+                              ng-repeat="action in step.model.actions.data|filter:{MatchTypeID:5}|filter:step.itemFilter">
+
+                                    <md-button class="md-icon-button" ng-click="step.editAction($event, action)">
+                                        <md-icon class="material-icons">subdirectory_arrow_right</md-icon>
+                                    </md-button>
+
+                                    <div layout-gt-xs="row" layout-fill layout-margin>
+                                          <md-input-container class="md-block" flex>
+                                                <label>Action</label>
+                                                <md-select ng-model="action.ActionTypeID">
+                                                    <md-option ng-repeat="type in step.types.actionTypes" value="{{type.ActionTypeID}}">
+                                                        {{type.Description}}
+                                                    </md-option>
+                                                </md-select>
+                                              <div class="hint hint-input" ng-hide="!action.MatchCondition">
+                                                if: {{action.MatchCondition}}
+                                              </div>
+                                            </md-input-container>
+                                            <md-input-container class="md-block" flex>
+                                                <label>Expression</label>
+                                                <textarea rows="1" ng-model="action.ActionExpression"></textarea>
+                                                <div class="hint hint-input" >
+                                                    Pythonic code.
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+
+                                    <md-button class="md-icon-button" ng-click="step.model.actions.delete(action, $event)">
+                                        <md-icon class="material-icons">remove_circle_outline</md-icon>
+                                    </md-button>
+                                
+                            </div>
+                            
+                        </md-card-content>
+                    </md-card>
+
+                    <!-- On Input -->
+                    <md-card ng-hide="step.model.StepTypeID > 2">
+
+                        <md-card-header style="padding-bottom: 0;">
+                            <md-card-avatar>
+                                <md-icon class="maerial-icons">dialpad</md-icon>
+                            </md-card-avatar>
+                            <md-card-header-text>
+                                <span class="md-title">On Input</span>
+                                <span class="md-subhead" >ASR or DTMF Input</span>
+                            </md-card-header-text>
+                            <div class="flex"></div>
+                            <md-button class="md-fab md-mini md-raised" ng-click="step.model.actions.addInputAction()">
+                                <md-icon class="material-icons">add</md-icon>
+                            </md-button>
+                        </md-card-header>
+
+                        <md-card-content style="padding-top: 0;">
+                            <div layout="row" layout-align="start center"
+                              ng-repeat="action in step.model.actions.data | filter:{MatchTypeID:1} | filter:step.itemFilter">
+                                <md-button class="md-icon-button" ng-click="step.editAction($event, action)">
+                                    <md-icon class="material-icons">subdirectory_arrow_right</md-icon>
+                                </md-button>
+
+                                <div layout-gt-xs="row" layout-fill layout-margin>
+                                            <md-input-container class="md-block" flex>
+                                                <label>Input</label>
+                                                <input required ng-model="action.MatchExpression">
+                                                <div class="hint hint-input">
+                                                    Regular expression.
+                                                </div>
+                                            </md-input-container>
+                                            <md-input-container class="md-block" flex>
+                                                <label>Action</label>
+                                                <md-select ng-model="action.ActionTypeID">
+                                                    <md-option ng-repeat="type in step.types.actionTypes" value="{{type.ActionTypeID}}">
+                                                        {{type.Description}}
+                                                    </md-option>
+                                                </md-select>
+                                                <div class="hint hint-input" ng-hide="!action.MatchCondition">
+                                                    if: {{action.MatchCondition}}
+                                                </div>
+                                            </md-input-container>
+                                            <md-input-container flex>
+                                                <label>Next Step</label>
+                                                <md-select ng-model="action.SuccessStep" ng-change="step.steps.add($event, action, 'SuccessStep', '{{action.SuccessStep}}')">
+                                                    <md-option ng-repeat="refStep in step.steps.data" value="{{refStep.StepID}}">
+                                                        {{refStep.Name}}
+                                                    </md-option>
+                                                </md-select>
+                                            </md-input-container>
+
+                                        </div>
+
+                                <md-button class="md-icon-button" ng-click="step.model.actions.delete(action, $event)">
+                                    <md-icon class="material-icons">remove_circle_outline</md-icon>
+                                </md-button>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+
+                    <!-- On Default / Exit -->
+                    <md-card  ng-hide="step.model.StepTypeID == 3">
+
+                        <md-card-header style="padding-bottom: 0;">
+                            <md-card-avatar>
+                                <md-icon class="maerial-icons" ng-if="step.model.StepTypeID != 4">change_history</md-icon>
+                                <md-icon class="maerial-icons" ng-if="step.model.StepTypeID == 4">exit_to_app</md-icon>
+                            </md-card-avatar>
+                            <md-card-header-text>
+                                <span class="md-title" ng-if="step.model.StepTypeID != 4">On Default</span>
+                                <span class="md-title" ng-if="step.model.StepTypeID == 4">On Exit</span>
+                                <span class="md-subhead" ng-if="step.model.StepTypeID != 4">
+                                    Step completed but no input actions matched.
+                                </span>
+                                <span class="md-subhead" ng-if="step.model.StepTypeID == 4">
+                                    Module Exited.
+                                </span>
+                            </md-card-header-text>
+                            <div class="flex"></div>
+                            <md-button class="md-fab md-mini md-raised" ng-click="step.model.actions.addDefaultAction()">
+                                <md-icon class="material-icons">add</md-icon>
+                            </md-button>
+                        </md-card-header>
+
+                        <md-card-content style="padding-top: 0;">
+
+                            <div layout="row" layout-align="start center"
+                                ng-repeat="action in step.model.actions.data|filter:{MatchTypeID:0}|filter:step.itemFilter">
+                                <md-button class="md-icon-button" ng-click="step.editAction($event, action)">
+                                    <md-icon class="material-icons">subdirectory_arrow_right</md-icon>
+                                </md-button>
+
+                                <div layout-gt-xs="row" layout-fill layout-margin>
+
+                                            <md-input-container class="md-block" flex>
+                                                <label>Action</label>
+                                                <md-select ng-model="action.ActionTypeID">
+                                                    <md-option ng-repeat="type in step.types.actionTypes" value="{{type.ActionTypeID}}">
+                                                        {{type.Description}}
+                                                    </md-option>
+                                                </md-select>
+                                                <div class="hint hint-input" ng-hide="!action.MatchCondition">
+                                                    if: {{action.MatchCondition}}
+                                                </div>
+                                            </md-input-container>
+                                            <md-input-container class="md-block" flex>
+                                                <label>Arguments</label>
+                                                <input ng-model="action.ActionExpression">
+                                            </md-input-container>
+                                            <md-input-container flex>
+                                                <label>Next Step</label>
+                                                <md-select ng-model="action.SuccessStep" ng-change="step.steps.add($event, action, 'SuccessStep', '{{action.SuccessStep}}')">
+                                                    <md-option ng-repeat="refStep in step.steps.data" value="{{refStep.StepID}}">
+                                                        {{refStep.Name}}
+                                                    </md-option>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+
+                                <md-button class="md-icon-button" ng-click="step.model.actions.delete(action, $event)">
+                                    <md-icon class="material-icons">remove_circle_outline</md-icon>
+                                </md-button>
+                            </div>
+
+                        </md-card-content>
+                    </md-card>
+
+                    <!-- On Error -->
+                    <md-card   ng-hide="step.model.StepTypeID > 1">
+
+                        <md-card-header>
+                            <md-card-avatar>
+                                <md-icon class="maerial-icons">report_problem</md-icon>
+                            </md-card-avatar>
+                            <md-card-header-text>
+                                <span class="md-title">On Error</span>
+                                <span class="md-subhead" >Input cycle completed but no input actions matched.</span>
+                            </md-card-header-text>
+                            <div class="flex"></div>
+                            <md-button class="md-fab md-mini md-raised" ng-click="step.model.actions.addErrorAction()">
+                                <md-icon class="material-icons">add</md-icon>
+                            </md-button>
+                        </md-card-header>
+
+                        <md-card-content style="padding-top: 0;">
+                            <!-- The div is a firefox fix -->
+                            <div layout="row" layout-align="start center"
+                                ng-repeat="action in step.model.actions.data|filter:{MatchTypeID:6}|filter:step.itemFilter">
+
+                                <md-button class="md-icon-button" ng-click="step.editAction($event, action)">
+                                    <md-icon class="material-icons">subdirectory_arrow_right</md-icon>
+                                </md-button>
+
+                                <div layout-gt-xs="row" layout-fill>
+                                            <md-input-container class="md-block" flex>
+                                                <label>Action</label>
+                                                <md-select ng-model="action.ActionTypeID">
+                                                    <md-option ng-repeat="type in step.types.actionTypes" value="{{type.ActionTypeID}}">
+                                                        {{type.Description}}
+                                                    </md-option>
+                                                </md-select>
+                                                <div class="hint hint-input" ng-hide="!action.MatchCondition">
+                                                    if: {{action.MatchCondition}}
+                                                </div>
+                                            </md-input-container>
+                                            <md-input-container class="md-block" flex>
+                                                <label>Continues</label>
+                                                <md-select ng-model="action.CanContinue">
+                                                    <md-option ng-repeat="type in step.types.booleanTypes" value="{{type.value}}">
+                                                        {{type.name}}
+                                                    </md-option>
+                                                </md-select>
+                                            </md-input-container>
+                                            <md-input-container flex>
+                                                <label>Phrase</label>
+                                                <md-select ng-model="action.PhraseID" ng-change="step.phrases.add($event, action, 'PhraseID', '{{action.PhraseID}}')">
+                                                    <md-option ng-repeat="phrase in step.phrases.data" value="{{phrase.PhraseID}}">
+                                                        {{phrase.Description}}
+                                                    </md-option>
+                                                </md-select>
+
+                                            </md-input-container>
+                                        </div>
+
+                                <md-button class="md-icon-button" ng-click="step.model.actions.delete(action, $event)">
+                                    <md-icon class="material-icons">remove_circle_outline</md-icon>
+                                </md-button>
+
+
+                            </div>
+                        </md-card-content>
+                    </md-card>
+
+                </div>
+            </div>
+        </form>
+    </script>
+
+    <!-- Editor Options Template -->
+    <script type="text/ng-template" id="/EditorActions.tpl">
+        <md-bottom-sheet class="md-list md-has-header" style="padding-left:0; padding-top:0"
+          ng-class="{'dark': $storage.useDarkTheme}">
+          <md-content layout-fill layout-padding style="margin-top:0;margin-bottom:0;">
+            <md-header ng-cloak>{{title}}</md-header>
+            <md-list ng-cloak layout-fill >
+                <md-list-item ng-repeat-start="item in items" ng-if="item.text != 'divider'">
+                      <md-button class="md-list-item-content" ng-click="selectItem(item)">
+                        <md-icon>{{item.icon}}</md-icon>
+                        <span class="md-inline-list-icon-label">{{item.text}}</span>
+                      </md-button>
+                </md-list-item>
+                <md-divider ng-repeat-end ng-if="item.text == 'divider'"></md-divider>
+            </md-list>
+          </md-content>
+        </md-bottom-sheet>
+    </script>
+
+    <!-- Action Editor Template -->
+    <script type="text/ng-template" id="/ActionEditor.tpl">
+        <md-dialog arial-label="Action Editor" flex-gt-sm="60">
+            <form ng-cloak name="ActionForm" layout="column" >
+              <md-toolbar ng-class="{'md-hue-3': action.useDarkTheme}">
+                  <div class="md-toolbar-tools">
+                    <h2>Action Editor</h2>
+                    <span flex></span>
+                    <md-button class="md-icon-button" ng-click="action.close()">
+                      <md-icon aria-label="Close dialog">close</md-icon>
+                    </md-button>
+                  </div>
+                </md-toolbar>
+                <md-dialog-content>
+                    <md-content layout="column" class="md-dialog-content" layout-margin layout-fill>
+
+                        <div layout-gt-xs="row" flex >
+
+                            <md-input-container class="md-block" flex-gt-xs>
+                                <label>Name</label>
+                                <input md-maxlength="50" required ng-model="action.model.Name">
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-xs ng-if="action.model.MatchTypeID==1">
+                                <label>Input</label>
+                                <input md-maxlength="128" required ng-model="action.model.MatchExpression">
+                                <div class="hint hint-input" >
+                                    Regular expression.
+                                </div>
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-xs>
+                                <label>Action</label>
+                                <md-select ng-model="action.model.ActionTypeID">
+                                    <md-option ng-repeat="type in action.types.actionTypes" value="{{type.ActionTypeID}}">
+                                        {{type.Description}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+
+                        <div flex >
+                            <md-input-container class="md-block" flex-gt-xs>
+                                <label>Condition</label>
+                                <input md-maxlength="512" ng-model="action.model.MatchCondition">
+                                <div class="hint hint-input" >
+                                    Pythonic boolean expression.
+                                </div>
+                            </md-input-container>
+
+                            <md-input-container class="md-block" flex-gt-xs>
+                                <label>Expression</label>
+                                <textarea rows="1" ng-model="action.model.ActionExpression"></textarea>
+                                <div class="hint hint-input" >
+                                    Pythonic code.
+                                </div>
+                            </md-input-container>
+
+                        </div>
+
+                        <div layout-gt-xs="row" flex >
+                            <md-input-container class="md-block" flex-gt-xs ng-if="action.model.MatchTypeID==6">
+                                <label>Continues</label>
+                                <md-select ng-model="action.model.CanContinue">
+                                    <md-option ng-repeat="type in action.types.booleanTypes" value="{{type.value}}">
+                                        {{type.name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-xs ng-if="action.model.MatchTypeID!=5">
+                                <label>Phrase</label>
+                                <md-select ng-model="action.model.PhraseID"
+                                    ng-change="action.phrases.add($event, action.model, 'PhraseID', '{{action.model.PhraseID}}')">
+                                    <md-option ng-repeat="phrase in action.phrases.data" value="{{phrase.PhraseID}}">
+                                        {{phrase.Description}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-xs ng-if="action.model.MatchTypeID!=6">
+                                <label>Data Point</label>
+                                <md-select ng-model="action.model.DataPointID"
+                                    ng-change="action.datapoints.add($event, action.model, 'DataPointID', '{{action.model.DataPointID}}')">
+                                    <md-option ng-repeat="type in action.datapoints.data" value="{{type.DataPointID}}">
+                                        {{type.Name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+
+                        <div layout-gt-xs="row" flex ng-if="action.model.MatchTypeID<5">
+                            <md-input-container class="md-block" flex-gt-xs>
+                                <label>On Success</label>
+                                <md-select ng-model="action.model.SuccessStep"
+                                    ng-change="action.steps.add($event, action.model, 'SuccessStep', '{{action.model.SuccessStep}}')">
+                                    <md-option ng-repeat="refStep in action.steps.data" value="{{refStep.StepID}}">
+                                        {{refStep.Name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-xs>
+                                <label>On Failure</label>
+                                <md-select ng-model="action.model.FailureStep"
+                                    ng-change="action.steps.add($event, action.model, 'FailureStep', '{{action.model.FailureStep}}')">
+                                    <md-option ng-repeat="refStep in action.steps.data" value="{{refStep.StepID}}">
+                                        {{refStep.Name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </md-content>
+                </md-dialog-content>
+            </form>
+        </md-dialog>
+    </script>
+
+    <!-- Angular Material requires Angular.js Libraries -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-resource.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.11/ngStorage.min.js"></script>
+
+
+    <!-- Application bootstrap  -->
+    <script type="text/javascript">
+        angular.module('ProtoApp', ['ngMaterial', 'ngResource', 'ngRoute', 'ngStorage'])
+          .config(['$mdThemingProvider', '$localStorageProvider', function ($mdThemingProvider, $localStorageProvider) {
+              $mdThemingProvider.theme('blue-grey')
+                  .primaryPalette('blue-grey')
+                  .accentPalette('orange');
+                  //.backgroundPalette('grey');
+
+              var darkMap = $mdThemingProvider.extendPalette('grey', {
+                'contrastDefaultColor': 'dark'
+              });
+              $mdThemingProvider.definePalette('dark-grey', darkMap);
+
+              $mdThemingProvider.theme('dark')
+                  .primaryPalette('dark-grey', {
+                    'default': '800'
+                  })
+                  .accentPalette('cyan')
+                  .dark();
+                  //.backgroundPalette('dark-grey').dark();
+              $mdThemingProvider.alwaysWatchTheme(true);
+              $mdThemingProvider.setDefaultTheme($localStorageProvider.get('useDarkTheme') ? 'dark' : 'blue-grey')
+          }])
+          .config(['$routeProvider', function ($routeProvider) {
+              $routeProvider.when('/', {
+                  templateUrl: '/ivr.tpl',
+                  controller: 'IVREditorController',
+                  controllerAs: 'ivr'
+              }).when('/ivr/:id', {
+                  templateUrl: '/ivr.tpl',
+                  controller: 'IVREditorController',
+                  controllerAs: 'ivr'
+              }).when('/ivr/:ivrid/step/:id', {
+                  templateUrl: '/step.tpl',
+                  controller: 'StepEditorController',
+                  controllerAs: 'step'
+              });
+          }])
+          .controller('OptionsController', function($scope, $localStorage, optionsService){
+              var options = this;
+              $scope.$storage = $localStorage;
+              $scope.componentOptions = optionsService;
+          })
+          .controller('EditorActionsController', function($mdBottomSheet, $scope, title, items){
+              $scope.title = title;
+              $scope.items = items || [];
+              $scope.selectItem = function(item){
+                  $mdBottomSheet.hide(item);
+              };
+          })
+          .controller('IVREditorController', function ($mdBottomSheet, $mdSidenav, $localStorage, $routeParams, $window, $location, $mdDialog, types, phraseList, stepList, variableList, optionsService) {
+              var ivr = this;
+
+              // Component options
+              ivr.options = $localStorage.ivrEditorOptions;
+              if (!ivr.options) {
+                  $localStorage.ivrEditorOptions = ivr.options = {
+                      'steps': {icon: 'apps', text: 'Show Steps', value: true },
+                      'variables': {icon: 'widgets', text: 'Show Variables', value: true },
+                      'phrases': {icon: 'phone_in_talk', text: 'Show Phrases', value: true },
+                      'api': {icon: 'settings_ethernet', text: 'Show API', value: true }
+                  };
+              }
+              optionsService.title = 'IVR Editor Settings';
+              optionsService.items = ivr.options;
+
+              // Model (Temp Code)
+              if (!$localStorage['ivr' + ($routeParams.id || 0)])
+              {
+                  $localStorage['ivr' + ($routeParams.id || 0)] = {
+                      IVRID: $routeParams.id || 0,
+                      Description: 'Prototype',
+                      TypeID: 0,
+                      DirectionID: 3,
+                      DefaultInfoServiceURL: types.callinfoTypes[7]
+                  };
+              }
+              ivr.model = $localStorage['ivr' + ($routeParams.id || 0)];
+
+              // Loading
+              stepList.load(ivr.model.IVRID);
+              phraseList.load(ivr.model.IVRID);
+              variableList.load(ivr.model.IVRID);
+
+              // lists
+              ivr.types = types;
+              ivr.steps = stepList;
+              ivr.phrases = phraseList;
+              ivr.variables = variableList;
+
+              // UI Helpers
+              ivr.toggleSidebar = function(){
+                  $mdSidenav('left').toggle();
+              };
+
+              ivr.showOptions = function(){
+                $mdBottomSheet.show({
+                    templateUrl: '/EditorActions.tpl',
+                    controller: 'EditorActionsController',
+                    locals: {
+                      title: 'IVR Actions',
+                      items: [
+                        {text: 'Close', icon: 'close'},
+                        {text: 'Save to Database', icon: 'save'},
+                        {text: 'divider'},
+                        {text: 'Export to File', icon: 'file_download'},
+                        {text: 'divider'},
+                        {text: 'Clear Local Content', icon: 'delete'}
+                      ]
+                    }
+                }).then(function(item){
+                    switch(item.text){
+                        case 'Clear Local Content':
+                            ivr.reset();
+                            break;
+                    }
+                });
+              };
+
+              // Save Helper
+              ivr.save = function(ev){
+                  if (!ivr.settingsForm.$valid)
+                    return;
+
+                  //ivr.steps.save(ev);
+                  //ivr.phrases.save(ev);
+                  //ivr.variables.save(ev);
+              };
+
+              ivr.editStep = function(step, ev){
+                  if (step.StepID == -1)
+                      ivr.steps.add(ev);
+                  else
+                      $location.url('/ivr/' + ivr.model.IVRID + '/step/' + step.StepID);
+              };
+
+              ivr.reset = function(ev){
+                  $mdDialog.show(
+                    $mdDialog.confirm({
+                      onComplete: function afterShowAnimation() {
+                          var $dialog = angular.element(document.querySelector('md-dialog'));
+                          var $actionsSection = $dialog.find('md-dialog-actions');
+                          var $cancelButton = $actionsSection.children()[0];
+                          var $confirmButton = $actionsSection.children()[1];
+                          angular.element($confirmButton).addClass('md-raised');
+                          angular.element($cancelButton).addClass('md-raised').removeClass('md-primary');
+                        }
+                      })
+                      .title('Are you sure you want to delete all IVR data?')
+                      .textContent('This action can not be undone.')
+                      .targetEvent(ev)
+                      .ok('Delete')
+                      .cancel('Cancel')
+                  ).then(function () {
+                      $localStorage.$reset();
+                      $window.location.reload();
+                  });
+              };
+          })
+          .controller('StepEditorController', function ($mdDialog, $localStorage, $mdBottomSheet, $mdSidenav, $document, $routeParams, $location, types, actionList, phraseList, stepList, datapointList, optionsService) {
+              var step = this;
+
+              // Component options
+              step.options = $localStorage.stepEditorOptions;
+              if (!step.options) {
+                  $localStorage.stepEditorOptions = step.options = {
+                      'media': {icon: 'phone_in_talk', text: 'Show Media', value: true },
+                      'load': {icon: 'settings_ethernet', text: 'Show Load Actions', value: true },
+                      'input': {icon: 'dialpad', text: 'Show Input Actions', value: true },
+                      'default': {icon: 'change_history', text: 'Show Default Actions', value: true },
+                      'error': {icon: 'report_problem', text: 'Show Error Actions', value: true }
+                  };
+              }
+              optionsService.title = 'Step Editor Settings';
+              optionsService.items = step.options;
+
+              // Step Collection
+              step.steps = stepList;
+              step.steps.load($routeParams.ivrid);
+
+              // Step Data
+              step.model = stepList.data.find(function(s){
+                  return s.StepID == $routeParams.id;
+              });
+
+              if (!step.model.actions || !step.model.actions.save)
+                  step.model.actions = new actionList(step.model.StepID);  // HAAAAAACK!!!
+
+              // lists
+              datapointList.load();
+              step.datapoints = datapointList;
+
+              phraseList.load($routeParams.ivrid);
+              step.phrases = phraseList;
+
+              step.types = types;
+
+              // Step Save Helper
+              step.save = function(ev){
+                  if (!step.settingsForm.$valid ) {
+                      var e = angular.element($document[0].querySelector('md-select.ng-invalid'))
+                      e.addClass('ng-dirty');
+                      e.focus();
+                      return;
+                  }
+                  //step.steps.save(ev, step.model);
+                  //step.phrases.save(ev);
+                  //step.datapoints.save(ev);
+                  //step.model.actions.save(ev);
+
+                  $location.url('/ivr/' + $routeParams.ivrid);
+              };
+
+              // Action Editor
+              step.editAction = function(ev, a) {
+                  $mdDialog.show({
+                      controller: 'ActionEditorController',
+                      controllerAs: 'action',
+                      templateUrl: '/ActionEditor.tpl',
+                      targetEvent: ev,
+                      locals: {model: a},
+                      clickOutsideToClose: true,
+                      escapeToClose: true,
+                      fullscreen: true
+                  });
+              };
+
+
+              // UI Helpers
+              step.toggleSidebar = function(){
+                  $mdSidenav('left').toggle();
+              };
+
+              step.showOptions = function(){
+                $mdBottomSheet.show({
+                    templateUrl: '/EditorActions.tpl',
+                    controller: 'EditorActionsController',
+                    locals: {
+                      title: 'Step Actions',
+                      items: [
+                        {text: 'Close Editor', icon: 'exit_to_app'},
+                        {text: 'divider'},
+                        {text: 'Save to Database', icon: 'save'},
+                        {text: 'Reload from Database', icon: 'restore_page'},
+                        {text: 'divider'},
+                        {text: 'Clear Local Content', icon: 'delete'}
+                      ]
+                    }
+                }).then(function(item){
+                    switch(item.text){
+                        case 'Close Editor':
+                            step.save();
+                            break;
+                    }
+                });
+              };
+
+          })
+          .controller('ActionEditorController', function($localStorage, $mdDialog, model, stepList, datapointList, phraseList, types){
+              var action = this;
+              action.model = model;
+              action.close = $mdDialog.hide;
+              action.useDarkTheme = $localStorage.useDarkTheme;
+
+              // lists (which should all be configured already)
+              action.steps = stepList;
+              action.datapoints = datapointList;
+              action.phrases = phraseList;
+              action.types = types;
+          })
+          .factory('actionList', function($resource, $mdDialog, $localStorage){
+              return function(stepID) {
+                  var _stepID = stepID;
+                  var list = this;
+
+                  // TEMP Code - try to load from local storage
+                  list.data = $localStorage['actionList' + _stepID];
+                  if (!list.data)
+                    list.data = $localStorage['actionList' + _stepID] = [];
+
+                  list.addPreAction = function () {
+                          list.data.push({
+                              ActionID: null,
+                              StepID: _stepID,
+                              Name: 'Pre-Action ' + (list.data.length + 1),
+                              MatchTypeID: 5,
+                              ActionTypeID: 1,
+                              CanContinue: false
+                          });
+                  };
+                  list.addInputAction = function () {
+                          list.data.push({
+                              ActionID: null,
+                              StepID: _stepID,
+                              Name: 'Input-Action ' + (list.data.length + 1),
+                              MatchTypeID: 1,
+                              ActionTypeID: 2,
+                              CanContinue: false
+                          });
+                  };
+                  list.addErrorAction = function () {
+                          list.data.push({
+                              ActionID: null,
+                              StepID: _stepID,
+                              Name: 'Error-Action ' + (list.data.length + 1),
+                              MatchTypeID: 6,
+                              ActionTypeID: 0,
+                              CanContinue: false
+                          });
+                  };
+                  list.addDefaultAction = function () {
+                          this.data.push({
+                              ActionID: null,
+                              StepID: _stepID,
+                              Name: 'Default-Action ' + (list.data.length + 1),
+                              MatchTypeID: 0,
+                              ActionTypeID: 3,
+                              CanContinue: false
+                          });
+                  };
+                  list.save = function(ev, action){
+                          // TODO : actually save
+                          if (action)
+                            action.ActionID = list.data.indexOf(action) + 1;
+                          $localStorage['actionList' + _stepID] = this.data;
+                  };
+                  list.delete = function (action, ev) {
+                          $mdDialog.show(
+                            $mdDialog.confirm({
+                              onComplete: function afterShowAnimation() {
+                                  var $dialog = angular.element(document.querySelector('md-dialog'));
+                                  var $actionsSection = $dialog.find('md-dialog-actions');
+                                  var $cancelButton = $actionsSection.children()[0];
+                                  var $confirmButton = $actionsSection.children()[1];
+                                  angular.element($confirmButton).addClass('md-raised');
+                                  angular.element($cancelButton).addClass('md-raised').removeClass('md-primary');
+                                }
+                              })
+                              .title('Are you sure you want to delete ' + action.Name + '?')
+                              .textContent('This action can not be undone.')
+                              .targetEvent(ev)
+                              .ok('Delete')
+                              .cancel('Cancel')
+                          ).then(function () {
+                              // TODO: Actually Delete
+                              list.data.splice(list.data.indexOf(action), 1);
+                          });
+                  };
+              };
+          })
+          .service('stepList', function($resource, $mdDialog, $localStorage){
+              var _ivrID = null;
+              var list = {};
+              list.data = [ //$resource('/ivr/steps/' + _ivrID).query();
+                  { StepID: -1, Name: '<Add New>' }
+              ];
+              list.add = function (ev, obj, prop, orig) {
+                  if (obj && obj[prop] != -1) return;
+                  var confirm = $mdDialog.prompt({
+                    onComplete: function afterShowAnimation() {
+                        var $dialog = angular.element(document.querySelector('md-dialog'));
+                        var $actionsSection = $dialog.find('md-dialog-actions');
+                        var $cancelButton = $actionsSection.children()[0];
+                        var $confirmButton = $actionsSection.children()[1];
+                        angular.element($confirmButton).addClass('md-raised');
+                        angular.element($cancelButton).addClass('md-raised').removeClass('md-primary');
+                    }
+                  })
+                    .title('Enter a name for the new step.')
+                    .placeholder('Step name')
+                    .ariaLabel('Step name')
+                    .targetEvent(ev)
+                    .ok('Create')
+                    .cancel('Cancel');
+                  $mdDialog.show(confirm).then(function (result) {
+                      if (!result) {
+                        if (obj) obj[prop] = parseInt(orig);
+                        return;
+                      }
+
+                      var stepTypeID = 0;
+                      if (result.startsWith('Entry')) stepTypeID = 1;
+                      else if (result == 'AMD') stepTypeID = 2;
+                      else if (result.startsWith('Whisper')) stepTypeID = 3;
+
+                      var s = {
+                          StepID: list.data.length + 1,
+                          IVRID: _ivrID,
+                          Name: result,
+                          StepTypeID: stepTypeID,
+                          MinDigits: 1,
+                          MaxDigits: 1,
+                          Terminator: '#',
+                          Timeout: 3000,
+                          MaxAttempts: 3,
+                          EntryPhraseID: null,
+                          ErrorPhraseID: null
+                      };
+                      list.setDefaults(s);
+                      list.data.push(s);
+                      if (obj) obj[prop] = s.StepID;
+                  }, function () {
+                      if (obj) obj[prop] = parseInt(orig);
+                  });
+              };
+              list.save = function(ev, step){
+                  // TODO : actually save
+                  if (step && list.data.indexOf(step) == -1){
+                      list.data.push(step);
+                      step.StepID = list.data.indexOf(step) + 1;
+                  }
+              };
+              list.load = function(ivrID){
+                  if (ivrID == _ivrID) return;
+
+                  // TEMP Code - try to load from local storage
+                  _ivrID = ivrID
+                  if ($localStorage['stepList' + _ivrID]) {
+                      list.data = $localStorage['stepList' + _ivrID];
+                  }
+                  else {
+                      $localStorage['stepList' + _ivrID] = list.data;
+                  }
+              };
+              list.setDefaults = function(step){
+                  switch(parseInt(step.StepTypeID)){
+                      case 2:
+                          step.MinDigits = 1;
+                          step.MaxDigits = 1;
+                          step.Timeout = 1000;
+                          step.MaxAttempts = 1;
+                          break;
+                      case 3:
+                      case 4:
+                          step.MinDigits = 0;
+                          step.MaxDigits = 0;
+                          step.Timeout = 0;
+                          step.MaxAttempts = 0;
+                          step.EntryPhraseID = null;
+                          step.ErrorPhraseID = null;
+                          break;
+                      default:
+                          step.MinDigits = 1;
+                          step.MaxDigits = 1;
+                          step.Timeout = 3000;
+                          step.MaxAttempts = 3;
+                          break;
+                  }
+              };
+              return list;
+          })
+          .service('phraseList', function($resource, $mdDialog, $localStorage){
+              var _ivrID = null;
+              var list = {};
+              list.data = [ //$resource('/ivr/phrases/' + _ivrID).query();
+                  { PhraseID: -1, Description: '<Add New>' }
+              ];
+              list.add = function (ev, obj, prop, orig) {
+                  if (obj && obj[prop] != -1) return;
+                  var confirm = $mdDialog.prompt({
+                    onComplete: function afterShowAnimation() {
+                        var $dialog = angular.element(document.querySelector('md-dialog'));
+                        var $actionsSection = $dialog.find('md-dialog-actions');
+                        var $cancelButton = $actionsSection.children()[0];
+                        var $confirmButton = $actionsSection.children()[1];
+                        angular.element($confirmButton).addClass('md-raised');
+                        angular.element($cancelButton).addClass('md-raised').removeClass('md-primary');
+                      }
+                    })
+                    .title('Enter a name for the new phrase?')
+                    .placeholder('Phrase name')
+                    .ariaLabel('Phrase name')
+                    //.initialValue(step.model.Name)
+                    .targetEvent(ev)
+                    .ok('Create')
+                    .cancel('Cancel');
+                  $mdDialog.show(confirm).then(function (result) {
+                      if (!result) {
+                        if (obj) obj[prop] = parseInt(orig);
+                        return;
+                      }
+                      var p = { PhraseID: list.data.length, Description: result };
+                      list.data.push(p);
+                      if (obj) obj[prop] = p.PhraseID;
+                  }, function () {
+                      if (obj) obj[prop] = parseInt(orig);
+                  });
+              };
+              list.save = function(ev){
+                  $localStorage['phraseList' + _ivrID] = list.data;
+              };
+              list.load = function(ivrID){
+                  if (ivrID == _ivrID && list.data.length > 1) return;
+
+                  // TEMP Code - try to load from local storage
+                  _ivrID = ivrID
+                  if($localStorage['phraseList' + _ivrID])
+                      list.data = $localStorage['phraseList' + _ivrID];
+                  else
+                      $localStorage['phraseList' + _ivrID] = list.data;
+              };
+              return list;
+          })
+          .service('variableList', function($resource, $mdDialog, $localStorage){
+              var _ivrID = null;
+              var list = {};
+              list.data = []; //$resource('/ivr/steps/' + _ivrID).query();
+              list.add = function (name) {
+                  if (!name) return null;
+
+                  var valueTypeID = 1;
+
+                  // Try to be smart
+                  if (name.endsWith('Expression'))
+                      valueTypeID = 0;
+
+                  if (name.endsWith('Type') || name.endsWith('Key') || name.endsWith('ID') || name.endsWith('s'))
+                      valueTypeID = 2;
+
+                  if (name.endsWith('Extension') )
+                      valueTypeID = 3;
+
+                  if (name.endsWith('Prompt'))
+                      valueTypeID = 4;
+
+                  if (name.endsWith('Number') )
+                      valueTypeID = 5;
+
+                  var v = {
+                      CallVariableID: list.data.length + 1,
+                      IVRID: _ivrID,
+                      Name: name,
+                      DefaultValue: null,
+                      ValueTypeID: valueTypeID
+                  };
+                  list.data.push(v);
+                  return v;
+              };
+              list.save = function(ev){
+                  $localStorage['variableList' + _ivrID] = list.data;
+              };
+              list.load = function(ivrID){
+                  if (ivrID == _ivrID) return;
+
+                  // TEMP Code - try to load from local storage
+                  _ivrID = ivrID
+                  if($localStorage['variableList' + _ivrID])
+                      list.data = $localStorage['variableList' + _ivrID];
+                  else
+                      $localStorage['variableList' + _ivrID] = list.data;
+              };
+              return list;
+          })
+          .service('datapointList', function($resource, $mdDialog, $localStorage){
+                  var list = {};
+                  list.data = [ //$resource('/ivr/phrases/' + _ivrID).query();
+                      { DataPointID: -1, Name: '<Add New>' }
+                  ];
+                  list.add = function (ev, obj, prop, orig) {
+                      if (obj[prop] != -1) return;
+                      var confirm = $mdDialog.prompt()
+                        .title('Enter a name for the new DataPoint.')
+                        .placeholder('DataPoint name')
+                        .ariaLabel('DataPoint name')
+                        //.initialValue(step.model.Name)
+                        .targetEvent(ev)
+                        .ok('Create')
+                        .cancel('Cancel');
+                      $mdDialog.show(confirm).then(function (result) {
+                          if (!result) {
+                            obj[prop] = parseInt(orig);
+                            return;
+                          }
+                          var dp = { DataPointID: list.data.length, Name: result };
+                          list.data.push(dp);
+                          obj[prop] = dp.DataPointID;
+                      }, function () {
+                          obj[prop] = parseInt(orig);
+                      });
+                  };
+                  list.save = function(ev){
+                      $localStorage['datapointList'] = list.data;
+                  };
+                  list.load = function(){
+
+                      if (list.data.length > 1)
+                          return;
+
+                      // TEMP Code - try to load from local storage
+                      if($localStorage['datapointList'])
+                          list.data = $localStorage['datapointList'];
+                      else
+                          $localStorage['datapointList'] = list.data;
+                  };
+                  return list;
+          })
+          .service('types', function($resource){
+              //this.actionTypes = $resource('/ivr/actiontypes').query();
+              this.ivrTypes = [
+                {TypeID: 0, Description: 'Standard'},
+                {TypeID: 1, Description: 'Module'},
+                {TypeID: 2, Description: 'Custom'},
+                {TypeID: 3, Description: 'PreRelease'},
+                {TypeID: 4, Description: 'OutOfService'}
+              ];
+              this.ivrDirections = [
+                {DirectionID: 0, Description: 'Not Specified'},
+                {DirectionID: 1, Description: 'Inbound'},
+                {DirectionID: 2, Description: 'Outbound'},
+                {DirectionID: 3, Description: 'Both'}
+              ];
+              this.stepTypes = [
+                {StepTypeID: 0, Description: 'Default', Icon: 'menu'},
+                {StepTypeID: 1, Description: 'Entry', Icon: 'exit_to_app'},
+                {StepTypeID: 2, Description: 'AMD', Icon: 'voicemail'},
+                {StepTypeID: 3, Description: 'Whisper', Icon: 'hearing'},
+                {StepTypeID: 4, Description: 'Module Link', Icon: 'bookmark'}
+              ];
+              this.matchTypes = [
+                {MatchTypeID: 0, Description: 'Default'},
+                {MatchTypeID: 1, Description: 'Input'},
+                {MatchTypeID: 5, Description: 'Pre'},
+                {MatchTypeID: 6, Description: 'Error'},
+              ];
+              this.actionTypes = [
+                { ActionTypeID: 0, Description: 'None' },
+                { ActionTypeID: 1, Description: 'Execute' },
+                { ActionTypeID: 2, Description: 'Branch' },
+                { ActionTypeID: 3, Description: 'Hangup' },
+                { ActionTypeID: 4, Description: 'Eval' },
+                { ActionTypeID: 5, Description: 'Return' },
+                { ActionTypeID: 6, Description: 'AnswerTransfer' },
+                { ActionTypeID: 7, Description: 'Bridge' },
+                { ActionTypeID: 8, Description: 'BridgeToWhisper' },
+                { ActionTypeID: 9, Description: 'CancelAMD' },
+                { ActionTypeID: 10, Description: 'DetectMachine' },
+                { ActionTypeID: 11, Description: 'LookupCallerData' },
+                { ActionTypeID: 12, Description: 'RecurringPayment' },
+                { ActionTypeID: 13, Description: 'RecurringPaymentACH' },
+                { ActionTypeID: 14, Description: 'RequestPaymentReceipt' },
+                { ActionTypeID: 15, Description: 'RunACH' },
+                { ActionTypeID: 16, Description: 'RunCredit' },
+                { ActionTypeID: 17, Description: 'SetLanguage' },
+                { ActionTypeID: 18, Description: 'StartASR' },
+                { ActionTypeID: 19, Description: 'ValidateCardNumber' },
+                { ActionTypeID: 20, Description: 'LookupInsuranceProvider' },
+                { ActionTypeID: 21, Description: 'LoadConfiguration' },
+                { ActionTypeID: 22, Description: 'LookupState' },
+                { ActionTypeID: 23, Description: 'UpdateInsuranceProvider' },
+                { ActionTypeID: 24, Description: 'LoadSurvey' },
+                { ActionTypeID: 25, Description: 'SaveSurveyResponse' },
+                { ActionTypeID: 26, Description: 'LoadNextSurveyQuestion' },
+                { ActionTypeID: 27, Description: 'Transfer' },
+                { ActionTypeID: 28, Description: 'LoadInsuranceProvider' },
+                { ActionTypeID: 29, Description: 'VerifyInsuranceProvider' },
+                { ActionTypeID: 30, Description: 'RecordCall' },
+                { ActionTypeID: 31, Description: 'StoreCreditCard' },
+                { ActionTypeID: 32, Description: 'StoreACHData' },
+                { ActionTypeID: 33, Description: 'LookupServiceFee' },
+                { ActionTypeID: 34, Description: 'ScheduleACH' },
+                { ActionTypeID: 35, Description: 'ScheduleSale' },
+                { ActionTypeID: 36, Description: 'SendSMS' },
+                { ActionTypeID: 37, Description: 'SetDNC' },
+                { ActionTypeID: 38, Description: 'ProcessStagedPayment' },
+              ];
+              this.booleanTypes = [
+                { name: 'Yes', value: true },
+                { name: 'No', value: false }
+              ];
+              this.dtmfTypes = [
+                '#', '*', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+              ];
+              this.callinfoTypes = [
+                  "CCI_Site_CallInfo_v2.svc",
+          				"CCI_CallInfo_v2.svc",
+          				"CCI_Outbound_CallInfo_v1.svc",
+          				"CCI_Outbound_CallInfo_v1a.svc",
+          				"CMRE_CallInfo_v1.svc",
+          				"HRMG_CallInfo_v1.svc",
+          				"Inbound_CallInfo_PaymentPlanOverride_v1.svc",
+          				"Inbound_CallInfo_v1.svc",
+                  "IO_CallInfo_v1.svc",
+          				"Marina_CallInfo_v1.svc",
+          				"MedCo_CallInfo_v1.svc",
+          				"NoData_CallInfo_v1.svc",
+          				"Outbound_CallInfo_v1.svc",
+                  "ProMedica_CallInfo_v1.svc",
+          				"ROI_CallInfo_v1.svc",
+          				"Sheridan_CallInfo_v1.svc",
+          				"Site_CallInfo_v1.svc",
+                  "UHG_CallInfo_v1.svc",
+          				"Xifin_CallInfo_v1.svc",
+          				"XifinAccession_CallInfo_v1.svc",
+                  "UHG_Harken_CallInfo_v1.svc"
+              ];
+              this.valueTypes = [
+                  {ValueTypeID: 0, Description: 'Expression'},
+                  {ValueTypeID: 1, Description: 'Boolean'},
+                  {ValueTypeID: 2, Description: 'Numeric'},
+                  {ValueTypeID: 3, Description: 'String'},
+                  {ValueTypeID: 4, Description: 'BPS.MediaLink'},
+                  {ValueTypeID: 5, Description: 'BPS.PhoneNumber'},
+                  {ValueTypeID: 6, Description: 'BPS.LookUp'}
+              ];
+          })
+          .service('optionsService', function(){
+              this.title = null;
+              this.items = [];
+          })
+          .directive('milliseconds', function(){
+            return {
+              require: 'ngModel',
+              link: function(scope, element, attrs, ngModel) {
+                // view --> model (change date to string)
+                ngModel.$parsers.push(function(i){
+                  return (i * 1000);
+                });
+
+                // model --> view (change string to date)
+                ngModel.$formatters.push(function(o){
+                  return (o / 1000);
+                });
+              }
+            };
+          });
+    </script>
+
+</body>
+</html>
