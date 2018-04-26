@@ -32,6 +32,9 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 	ViewChild
 	Observables 
 	static methods
+	RxJS extensions
+	Typescript cool features
+	ECMA 6
 
 	Implement:  searching, delete line item
 
@@ -47,5 +50,7 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 	https://angular.io/guide/comparing-observables
 	https://toddmotto.com/rxjs-observables-observers-operators
 	https://codecraft.tv/courses/angular/components/lifecycle-hooks/
+	http://reactivex.io/rxjs/manual/overview.html#instance-operators-versus-static-operators
+	
 
 */
