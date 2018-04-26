@@ -1,14 +1,19 @@
-export class LineItem {
+/* Data-model.ts - type declarations for the app as well as app data (to be replaced by backend
+    functionality in a future phase.)
+
+*/
+
+export class LineItem {     // order line item, contains one product with pricing
   product: number;
   description: string;
   qty = 1;
   percentOff: number;
   lineItemTotal: number;   // see if there is a way to make this auto-calculated.
-  totalSaved: number;
+  totalSaved: number;     // Total amount saved on this line item, to be used by summary
   sku: number;
 }
 
-export class Product {
+export class Product {    
   sku: number;
   name: string;
   desc: string;
@@ -16,12 +21,12 @@ export class Product {
   stock: number;
 }
 
-export class InventoryRecord {
+export class InventoryRecord {    // tracks available inventory level for a product
   sku: number;
   stock: number;
 }
 
-export class Summary {
+export class Summary {        // Summary block
   totalItems:  number = 0;
   totalDiscount: number = 0.0;
   orderTotal: number = 0.0;
@@ -88,6 +93,7 @@ export const products: Product[] = [
 ];
 
 export const inventories: InventoryRecord[] = [
+  // Initial inventory levels, could be eventually tied to a specific location.
   {
     sku: 101,
     stock: 32

@@ -11,18 +11,31 @@ export class StorageService {
 
   getOrder(): Promise<LineItem[]> {   // returns a Promise of type LineItem array.
     return new Promise(resolve => {
-        // Simulate server latency with 1.5 second delay, do this eventually as an HTTP Get
-        var data = JSON.parse(localStorage.getItem("POS2Order"));
-        var set : LineItem[] = [];
-        data.forEach( line => {
-        	set.push(<LineItem>line);  // cast each generic object to a LineItem
-        }); 
-        setTimeout(() => resolve(set), 1500);
+      try {
+          var data = JSON.parse(localStorage.getItem("POS2Order"));
+          var set : LineItem[] = [];
+          data.forEach( line => {
+            set.push(<LineItem>line);  // cast each generic object to a LineItem
+          }); 
+        }
+        catch (e) {
+          // error handling for now, add some kind of return message to this...
+          console.log('Load error.');
+          console.log(e);
+        }       
+        setTimeout(() => resolve(set), 1500);  // Simulate server latency with 1.5 second delay, do this eventually as an HTTP Get
       });
   }
 
   saveOrder(order: LineItem[]): void {
-    	localStorage.setItem("POS2Order", JSON.stringify(order));
+    try {
+      localStorage.setItem("POS2Order", JSON.stringify(order));
+    }
+    catch (e) {
+      // error handling for now, add some kind of return message to this...
+      console.log('Save error, possible storage full.');
+      console.log(e);
+    }
   }
 
   search(pattern: string, observer) {
@@ -38,7 +51,7 @@ export class StorageService {
     var data = JSON.parse(localStorage.getItem("POS2Order"));
     data.forEach( line => {
       let li = <LineItem>line;   // cast each generic object to a LineItem
-      if (li.description.indexOf(this.searchPattern) > -1) observer.next(<LineItem>line);  // if a match, call the next function of the observer with this line item
+      if (li.description.indexOf(this.searchPattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
     }); 
     observer.complete();
 

@@ -15,7 +15,7 @@ import { ModalComponent } from './modal/modal.component';
 
 
 @NgModule({
-  declarations: [
+  declarations: [     // New components in this app go into declarations
     AppComponent,
     PosSystemComponent,
     OrderSummaryComponent,
@@ -25,10 +25,10 @@ import { ModalComponent } from './modal/modal.component';
   imports: [
     BrowserModule,
     BrowserAnimationsModule, 
-    ToastModule.forRoot(),
+    ToastModule.forRoot(),    // create as a singleton service and allow to be shared among all modules (eagerly loaded and lazily loaded)
     ReactiveFormsModule
   ],
-  providers: [
+  providers: [    // Services created in this app get registered as providers.
   	StorageService,
   	InventoryLevelService,
     ModalService

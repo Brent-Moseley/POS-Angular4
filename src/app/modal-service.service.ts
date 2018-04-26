@@ -1,15 +1,18 @@
-import { Injectable } from '@angular/core';
-import { Subject }    from 'rxjs/Subject';
+// Modal service allows components to "talk to each other", ie a web page component to set values for the modal component.
 
-@Injectable()
+import { Injectable } from '@angular/core';
+import { Subject }    from 'rxjs/Subject';      // docs:  http://reactivex.io/rxjs/manual/overview.html
+
+@Injectable()     // marks a class as available to Injector for creation.
 export class ModalService {
 
   // Observable string sources
-  private modalTitleSource = new Subject<string>();
-  private modalBodySource = new Subject<string>();
+  // An RxJS Subject is a special type of Observable that allows values to be multicasted to many Observers. May convert to unicast observable.
+  private modalTitleSource = new Subject<string>();   
+  private modalBodySource = new Subject<string>();    // perhaps similar to a topic in pub sub.
   private modalResponseSource = new Subject<string>();
-  private modalButtonPrimarySource = new Subject<string>();;
-  private modalButtonSecondarySource = new Subject<string>();;
+  private modalButtonPrimarySource = new Subject<string>();
+  private modalButtonSecondarySource = new Subject<string>();
 
 
   // Observable string streams

@@ -1,11 +1,14 @@
+// Main UI component
+
 import { Component, OnInit, ViewContainerRef  } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';   // Reactive forms
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 import { Product, products, LineItem, Summary, InventoryRecord } from '../data-model';
 import { StorageService } from '../storage-service.service';
 import { ModalService } from '../modal-service.service';
 import { InventoryLevelService } from '../inventory-level-service.service';
+import { Subscription }   from 'rxjs/Subscription';
 import $ = require('jquery');
 
 @Component({
@@ -27,17 +30,19 @@ export class PosSystemComponent implements OnInit {
   quantityError: boolean = false;
   discountError: boolean = false;
   loading: boolean = false;
+  subscription: Subscription;     // save the subscription
 
   constructor(private fb: FormBuilder, private storageService: StorageService, private modalService: ModalService,
       private inventoryService: InventoryLevelService, public toastr: ToastsManager,
       vcr: ViewContainerRef) { 
     this.toastr.setRootViewContainerRef(vcr);
-  	this.createForm();
+  	this.createForm();          // set up reactive form
     this.inventoryService.getInventories()
-      .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
+      .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
         this.setStockLevels(inv);
       });
 
+    // Sample of using observable to get search results / all lines.
     let lnum = 0;
     storageService.searchResults.subscribe({
       next(line) { lnum++; console.log('Current Order line ' + lnum + ': ', line); },
@@ -82,23 +87,22 @@ export class PosSystemComponent implements OnInit {
   onSubmit() {
     this.storageService.saveOrder(this.order);
     this.toastr.success('Order saved.', 'Success!');
-    // Do some sort of notification here that order was saved. 
   }
 
   //getInventory
-
   load() {
     if (this.order.length > 0)  {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your current order. Continue?');
       this.modalService.setButtons('Continue', 'Cancel');
       $('#messageModal').show();
-        this.modalService.modalResponseSource$.subscribe(
-          response => {
-            console.log('modal reply: ' + response);
-            if (response) this.loadAll();
-          }
-        );
+      this.subscription = this.modalService.modalResponseSource$.subscribe(
+        response => {
+          console.log('modal reply confirm : ' + response);
+          this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
+          if (response) this.loadAll();
+        }
+      );
     }
     else this.loadAll();
   }
@@ -109,11 +113,11 @@ export class PosSystemComponent implements OnInit {
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
         this.inventoryService.getInventories()
-          .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.
+          .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.  Update to observable later.
             this.setStockLevels(inv);
             this.products.forEach((prod) => {
               order.forEach(line => {
-                if (line.sku == prod.sku) prod.stock -= line.qty;  // Reduce stock based on order line.
+                if (line.sku == prod.sku) prod.stock -= line.qty;  // Reduce stock levels based on order line.
               });
             });
           });
@@ -122,13 +126,13 @@ export class PosSystemComponent implements OnInit {
         this.calculateTotal();
         this.selectedProduct = this.products[0];
         this.productMax = this.products[0].stock;
-        this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});
+        this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});  // reset form values
         this.loading = false;
       }); 
   }
 
   addItem(product, qty, percentOff) {
-    // double check quantity one more time before adding.
+    // double check quantity one more time before adding.  Blur event should handle this, but just in case they click add with focus still on input.
     this.quantityUpdated(qty);
     this.discountUpdated(percentOff);
     if (this.discountError == true || this.quantityError == true) return;
@@ -148,10 +152,10 @@ export class PosSystemComponent implements OnInit {
     this.toastr.success('Item added.', 'Success!');
   }
 
-  search(val) {
-    // Use observable to implement a search feature, find a line item, return in a separate results box, which is a new component.
+  // search(val) {
+  //   // Use observable to implement a search feature, find a line item, return in a separate results box, which is a new component.
     
-  }
+  // }
 
   calculateTotal() {
     var totalItems = 0;
@@ -175,4 +179,4 @@ export class PosSystemComponent implements OnInit {
 // https://hackernoon.com/best-practices-learnt-from-delivering-a-quality-angular4-application-2cd074ea53b3
 // Confirm good design practices:  do my components only have logic related to the view?  Are data structural / processing tasks left
 // to the services?
-// How to make better use of interfaces?  Extending classes?
+// How to make better use of interfaces?  Extending classes?  Static values?

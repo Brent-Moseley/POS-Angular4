@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LineItem } from '../data-model';
 import { StorageService } from '../storage-service.service';
 import { ModalService } from '../modal-service.service';
+import { Subscription }   from 'rxjs/Subscription';
 import $ = require('jquery');
 
 
@@ -13,6 +14,8 @@ import $ = require('jquery');
 export class SearchResultsComponent implements OnInit {
 
   searchResults: LineItem[] = [];
+  subscription: Subscription;
+
   constructor(private storageService: StorageService, private modalService: ModalService) { }
 
   ngOnInit() {
@@ -24,9 +27,10 @@ export class SearchResultsComponent implements OnInit {
       this.modalService.setModalBody('Please enter a search string');
       this.modalService.setButtons('OK', '');
       $('#messageModal').show();
-        this.modalService.modalResponseSource$.subscribe(
+          this.subscription = this.modalService.modalResponseSource$.subscribe(
           response => {
-            console.log('modal reply: ' + response);
+            console.log('modal reply search pattern does not exist: ' + response);
+            this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
           }
         );      
     }
@@ -37,7 +41,7 @@ export class SearchResultsComponent implements OnInit {
     	// call the search method of the storage service, passing in an observer object to handle the results
     	this.storageService.search(pattern, {
     	  next: line => { console.log(line); this.searchResults.push(line); lineCount++; },
-    	  complete: () => { console.log('Finished sequence');  this.checkSearchResults(lineCount); }
+    	  complete: () => { console.log('Finished sequence of search results.');  this.checkSearchResults(lineCount); }
   	  });
     }
   }
@@ -48,9 +52,10 @@ export class SearchResultsComponent implements OnInit {
       this.modalService.setModalBody('No order lines were found matching your search string.');
       this.modalService.setButtons('OK', '');
       $('#messageModal').show();
-        this.modalService.modalResponseSource$.subscribe(
+        this.subscription = this.modalService.modalResponseSource$.subscribe(
           response => {
-            console.log('modal reply: ' + response);
+            console.log('modal reply no search results to show: ' + response);
+            this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
           }
         );      
     }
