@@ -6,6 +6,7 @@ import { LineItem } from './data-model';
 export class StorageService {
 
   searchPattern: string = '';
+  searchOrder: string = '';
   orderList: string[];
 
   constructor() {
@@ -27,7 +28,7 @@ export class StorageService {
           console.log('Load error.');
           console.log(e);
         }       
-        setTimeout(() => resolve(set), 1500);  // Simulate server latency with 1.5 second delay, do this eventually as an HTTP Get
+        setTimeout(() => resolve(set), 750);  // Simulate server latency with 0.75 second delay, do this eventually as an HTTP Get
       });
   }
 
@@ -67,21 +68,27 @@ export class StorageService {
     }
   }
 
-  search(pattern: string, observer) {
+  search(pattern: string, order: string, observer) {
     // Set up a new search, saving the pattern and subscribing to the Observable with the new observer
     console.log('Now searching for: ' + pattern);
     this.searchPattern = pattern;
+    this.searchOrder = order;
     this.searchResults.subscribe(observer);
   }
 
   // Observable pattern, use as an alternate way to get an order. 
   // Define the search results observable (of type LineItem), to return each discovered line item
   searchResults: Observable<LineItem> = new Observable((observer) => {
-    var data = JSON.parse(localStorage.getItem("POS2OrderPOS2Order"));
-    data.forEach( line => {
-      let li = <LineItem>line;   // cast each generic object to a LineItem
-      if (li.description.indexOf(this.searchPattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
-    }); 
+    var data = JSON.parse(localStorage.getItem("POS2Order" + this.searchOrder));  // this is stateful, which is a problem if multiple components can use this.
+    if (!data) {
+      observer.error("Order not found.");
+    }
+    else {
+      data.forEach( line => {
+        let li = <LineItem>line;   // cast each generic object to a LineItem
+        if (li.description.indexOf(this.searchPattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
+      }); 
+    }
     observer.complete();
 
     // When the consumer unsubscribes, clean up data ready for next subscription.
@@ -99,3 +106,4 @@ export class StorageService {
 // http://cloudmark.github.io/Json-Mapping/
 // https://angular.io/guide/observables
 // 2851
+// https://x-team.com/blog/rxjs-observables/ 

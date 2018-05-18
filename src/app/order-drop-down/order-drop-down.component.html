@@ -1,3 +1,4 @@
 <select [(ngModel)]='optionSelected' (ngModelChange)='onOptionsSelected($event)' [disabled]="loading">
   <option *ngFor='let option of orderList' [value]="option">{{option}}</option>
+  <option [hidden] = "!showAll">All</option>
 </select>

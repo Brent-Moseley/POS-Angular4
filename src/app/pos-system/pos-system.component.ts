@@ -47,10 +47,12 @@ export class PosSystemComponent implements OnInit {
 
     // Sample of using observable to get search results / all lines.
     let lnum = 0;
-    storageService.searchResults.subscribe({
+
+    storageService.search("", "POS2Order", {
       next(line) { lnum++; console.log('Current Order line ' + lnum + ': ', line); },
-      error(msg) { console.log('Error Getting Lines: ', msg); }
-    });
+      error(msg) { console.log('Error Getting order: ', msg); }
+    });      
+    // End sample
   }
 
   orderUpdated(event) {

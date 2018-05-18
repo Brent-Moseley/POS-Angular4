@@ -20,12 +20,13 @@ export class OrderDropDownComponent implements OnInit {
   }
 
   @Input() loading: boolean;
+  @Input() showAll: boolean;
   @Output()
   change: EventEmitter<string> = new EventEmitter<string>();
 
   onOptionsSelected(event){
     console.log(event); //option value will be sent as event
-    debugger;
+    //debugger;
     this.change.emit(event);
   }
 
