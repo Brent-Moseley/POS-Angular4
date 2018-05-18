@@ -30,7 +30,10 @@ export class PosSystemComponent implements OnInit {
   quantityError: boolean = false;
   discountError: boolean = false;
   loading: boolean = false;
+  edits: boolean = false;
+  allowAdd: boolean = false;
   subscription: Subscription;     // save the subscription
+  currentOrder: string = "None";
 
   constructor(private fb: FormBuilder, private storageService: StorageService, private modalService: ModalService,
       private inventoryService: InventoryLevelService, public toastr: ToastsManager,
@@ -50,10 +53,18 @@ export class PosSystemComponent implements OnInit {
     });
   }
 
+  orderUpdated(event) {
+    //debugger;
+    this.currentOrder = event.target.value;
+    this.load(this.currentOrder);
+  }
+
   setStockLevels(inv: InventoryRecord[]) {
+    console.log('Set initial inventories:');
     this.products.forEach(prod => {
+      console.log ('  sku:' + prod.sku);
       inv.forEach(line => {
-        if (line.sku == prod.sku) prod.stock = line.stock;  // Set initial stock values from levels returned by service.
+        if (line.sku == prod.sku) { console.log ('     set to: ' + line.stock); prod.stock = line.stock;  } // Set initial stock values from levels returned by service.
         // TODO:  no way to break from forEach, refactor to use for loop with break for performance increase.
       });
     });
@@ -85,13 +96,73 @@ export class PosSystemComponent implements OnInit {
   }
 
   onSubmit() {
-    this.storageService.saveOrder(this.order);
+    this.storageService.saveOrder(this.order, this.currentOrder);
+    this.edits = false;
     this.toastr.success('Order saved.', 'Success!');
   }
 
+  newOrder() {
+    this.modalService.setModalTitle('Create New Order');
+    this.modalService.setModalBody('Enter a name for the new order:');  // TODO:  Check this.edits before doing this.
+    this.modalService.setModalShowInput(true);
+    this.modalService.setButtons('Continue', 'Cancel');
+    $('#messageModal').show();
+    this.subscription = this.modalService.modalResponseSource$.subscribe(
+      response => {
+        console.log('modal reply confirm : ' + response);
+        this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
+        //if (response) this.loadAll(order);
+        this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
+        if (response) {
+          // TODO: Make sure new order name does not already exist
+          this.order = [];
+          this.currentOrder = response;
+          this.edits = false;
+          this.inventoryService.getInventories()
+            .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
+              this.setStockLevels(inv);
+              this.allowAdd = true;
+              this.toastr.success('New order created.', 'Success!');          
+            });
+        }
+      }
+    );
+
+  }
+
+  remove(currentOrder)  {
+    this.modalService.setModalTitle('Delete Current Order');
+    this.modalService.setModalBody('Really delete current order from the system?  You cannot undo this.');
+    this.modalService.setButtons('Yes', 'Cancel');
+    $('#messageModal').show();
+    this.subscription = this.modalService.modalResponseSource$.subscribe(
+      response => {
+        console.log('modal reply confirm : ' + response);
+        this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
+        //if (response) this.loadAll(order);
+        this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
+        if (response) {
+          debugger;
+          this.order = [];
+          this.edits = false;
+          this.allowAdd = false;
+          this.storageService.removeOrder(this.currentOrder);
+          this.currentOrder = 'None';   // on initial state, perhaps disable add Item button until they load or start a new order.
+          this.inventoryService.getInventories()
+            .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
+              this.setStockLevels(inv);
+              this.toastr.success('Order deleted from the system. Adios!!', 'Success!');          
+            });
+        }
+      }
+    );
+
+  }
+
   //getInventory
-  load() {
-    if (this.order.length > 0)  {
+  load(order: string) {
+    console.log(order);
+    if (this.edits)  {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your current order. Continue?');
       this.modalService.setButtons('Continue', 'Cancel');
@@ -100,16 +171,17 @@ export class PosSystemComponent implements OnInit {
         response => {
           console.log('modal reply confirm : ' + response);
           this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
-          if (response) this.loadAll();
+          if (response) this.loadAll(order);
         }
       );
     }
-    else this.loadAll();
+    else this.loadAll(order);
   }
 
-  loadAll() {
+  loadAll(orderName: string) {
     this.loading = true;
-    this.storageService.getOrder()
+    this.edits = false;
+    this.storageService.getOrder(orderName)
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
         // TODO:  move this logic to the services, this is the kind of thing they should be doing, UI just gets
@@ -117,19 +189,29 @@ export class PosSystemComponent implements OnInit {
         this.inventoryService.getInventories()
           .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.  Update to observable later.
             this.setStockLevels(inv);
+            //console.log ('This.products before setting levels:');
+            //console.log(JSON.stringify(this.products));
             this.products.forEach((prod) => {
               order.forEach(line => {
-                if (line.sku == prod.sku) prod.stock -= line.qty;  // Reduce stock levels based on order line.
+                if (line.sku == prod.sku) {
+                  // console.log ('product match:');
+                  // console.log ('   '+ JSON.stringify(prod));
+                  // console.log ('   reduce by:' + JSON.stringify(line));
+                  prod.stock -= line.qty;  // Reduce stock levels based on order line.
+                }
               });
             });
+            this.order = order;
+            this.calculateTotal();
+            this.selectedProduct = this.products[0];
+            this.productMax = this.products[0].stock;
+            //console.log ('Updated product Max to: ' + this.productMax);
+            this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});  // reset form values
+            this.loading = false;
+            this.currentOrder = orderName;
+            this.edits = false; 
+            this.allowAdd = true; 
           });
-
-        this.order = order;
-        this.calculateTotal();
-        this.selectedProduct = this.products[0];
-        this.productMax = this.products[0].stock;
-        this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});  // reset form values
-        this.loading = false;
       }); 
   }
 
@@ -148,6 +230,7 @@ export class PosSystemComponent implements OnInit {
     	lineItemTotal: product.price * qty * (1.0 - percentOff / 100),
       totalSaved: product.price * percentOff / 100 * qty
     });
+    this.edits = true;
     this.productMax -= qty;
     product.stock -= qty;
     this.calculateTotal();

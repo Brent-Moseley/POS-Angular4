@@ -9,9 +9,12 @@
       </div>
       <div class="modal-body">
         <p>{{body}}</p>
+        <p [hidden]="!showInput">
+          <input type="text" #val />
+        </p>
       </div>
       <div class="modal-footer">
-        <button [hidden]="buttonPrimary.length == 0" type="button" class="btn btn-primary" (click)="close(true);">{{buttonPrimary}}</button>
+        <button [hidden]="buttonPrimary.length == 0" type="button" class="btn btn-primary" (click)="close(true, val.value);">{{buttonPrimary}}</button>
         <button [hidden]="buttonSecondary.length == 0" type="button" class="btn btn-secondary" data-dismiss="modal" (click)="close(false);">{{buttonSecondary}}</button>
       </div>
     </div>

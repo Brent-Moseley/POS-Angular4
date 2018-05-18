@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ToastModule } from 'ng2-toastr/ng2-toastr';
 
 import { AppComponent } from './app.component';
@@ -12,6 +12,7 @@ import { InventoryLevelService } from './inventory-level-service.service';
 import { OrderSummaryComponent } from './order-summary/order-summary.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { ModalComponent } from './modal/modal.component';
+import { OrderDropDownComponent } from './order-drop-down/order-drop-down.component';
 
 
 @NgModule({
@@ -20,13 +21,15 @@ import { ModalComponent } from './modal/modal.component';
     PosSystemComponent,
     OrderSummaryComponent,
     SearchResultsComponent,
-    ModalComponent
+    ModalComponent,
+    OrderDropDownComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule, 
     ToastModule.forRoot(),    // create as a singleton service and allow to be shared among all modules (eagerly loaded and lazily loaded)
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [    // Services created in this app get registered as providers.
   	StorageService,

@@ -10,6 +10,7 @@ import $ = require('jquery');
 export class ModalComponent implements OnInit {
   title: string = '';
   body: string = '';
+  showInput: boolean = false;
   buttonPrimary: string = '';
   buttonSecondary: string = '';
 
@@ -17,14 +18,19 @@ export class ModalComponent implements OnInit {
     this.modalService.modalTitleSource$.subscribe(
       title => {
         this.title = title;
-        console.log('title: ' + title);
+        console.log('New modal title: ' + title);
       }
     );
 
     this.modalService.modalBodySource$.subscribe(
       body => {
         this.body = body;
-        console.log('body: ' + body);
+        console.log('New modal body: ' + body);
+      }
+    );
+    this.modalService.modalShowInputSource$.subscribe(
+      show => {
+        this.showInput = show;
       }
     );
     this.modalService.modalButtonPrimary$.subscribe(
@@ -42,8 +48,9 @@ export class ModalComponent implements OnInit {
   ngOnInit() {
   }
 
-  close(cont: string) {
-    this.modalService.setModalResponse(cont);
+  close(cont: string, value: string) {
+    if (this.showInput && cont) this.modalService.setModalResponse(value);
+    else this.modalService.setModalResponse(cont);
   	$('#messageModal').hide();
   }
 
