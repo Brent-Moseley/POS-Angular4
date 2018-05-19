@@ -230,7 +230,8 @@ export class PosSystemComponent implements OnInit {
     	qty: qty, 
     	percentOff: percentOff,
     	lineItemTotal: product.price * qty * (1.0 - percentOff / 100),
-      totalSaved: product.price * percentOff / 100 * qty
+      totalSaved: product.price * percentOff / 100 * qty,
+      orderFrom: this.currentOrder
     });
     this.edits = true;
     this.productMax -= qty;

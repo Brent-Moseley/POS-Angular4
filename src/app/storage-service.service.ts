@@ -70,16 +70,17 @@ export class StorageService {
 
   search(pattern: string, order: string, observer) {
     // Set up a new search, saving the pattern and subscribing to the Observable with the new observer
-    console.log('Now searching for: ' + pattern);
+    console.log('Now searching for: ' + pattern + ' on order: ' + order);
     this.searchPattern = pattern;
     this.searchOrder = order;
-    this.searchResults.subscribe(observer);
+    if (order == 'All' ) this.searchResultsAll.subscribe(observer);
+    else this.searchResults.subscribe(observer);
   }
 
   // Observable pattern, use as an alternate way to get an order. 
   // Define the search results observable (of type LineItem), to return each discovered line item
   searchResults: Observable<LineItem> = new Observable((observer) => {
-    var data = JSON.parse(localStorage.getItem("POS2Order" + this.searchOrder));  // this is stateful, which is a problem if multiple components can use this.
+    var data = JSON.parse(localStorage.getItem("POS2Order" + this.searchOrder));
     if (!data) {
       observer.error("Order not found.");
     }
@@ -94,6 +95,22 @@ export class StorageService {
     // When the consumer unsubscribes, clean up data ready for next subscription.
     return {unsubscribe() { this.searchPattern = ''; }};
   });
+
+  searchResultsAll: Observable<LineItem> = new Observable((observer) => {
+    this.orderList.forEach( order => {
+      var data = JSON.parse(localStorage.getItem("POS2Order" + order));
+      data.forEach( line => {
+        let li = <LineItem>line;   // cast each generic object to a LineItem
+        if (!li.orderFrom) li.orderFrom = order;    // patch for old data.
+        if (li.description.indexOf(this.searchPattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
+      }); 
+    });
+    observer.complete(); 
+  
+    // When the consumer unsubscribes, clean up data ready for next subscription.
+    return {unsubscribe() { this.searchPattern = ''; }};
+  });
+
 }
 
 /*

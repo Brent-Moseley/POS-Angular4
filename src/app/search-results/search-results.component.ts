@@ -14,6 +14,7 @@ import $ = require('jquery');
 export class SearchResultsComponent implements OnInit {
 
   searchResults: LineItem[] = [];
+  searchResultsForOrder: string = '';
   subscription: Subscription;
   orderToSearch: string = '';
 
@@ -49,7 +50,11 @@ export class SearchResultsComponent implements OnInit {
     	// call the search method of the storage service, passing in an observer object to handle the results
     	this.storageService.search(pattern, this.orderToSearch, {
     	  next: line => { console.log(line); this.searchResults.push(line); lineCount++; },
-    	  complete: () => { console.log('Finished sequence of search results.');  this.checkSearchResults(lineCount); }
+    	  complete: () => { 
+          console.log('Finished sequence of search results.');  
+          this.checkSearchResults(lineCount); 
+          this.searchResultsForOrder = this.orderToSearch;
+        }
   	  });
     }
   }

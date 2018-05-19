@@ -11,6 +11,7 @@ export class LineItem {     // order line item, contains one product with pricin
   lineItemTotal: number;   // see if there is a way to make this auto-calculated.
   totalSaved: number;     // Total amount saved on this line item, to be used by summary
   sku: number;
+  orderFrom: string;    // used in search results, to indicate the order this line item is from.
 }
 
 export class Product {    
