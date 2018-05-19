@@ -45,7 +45,7 @@ export const products: Product[] = [
   {
     sku: 102,
     name: 'Race Face Chainring',
-    desc: '45 tooth, for 1x11 systems',
+    desc: '45 tooth, for 1x11 mountain bike systems',
     price: 67.11,
     stock: 0
   },
@@ -80,15 +80,64 @@ export const products: Product[] = [
   {
     sku: 244,
     name: 'Logitech wireless mouse M132',
-    desc: 'Just a mouse',
+    desc: 'Just a mouse, has buttons, you can click some',
     price: 19.00,
     stock: 0
   },
   {
     sku: 588,
-    name: 'Google Pixel 2 XL',
+    name: 'Google Pixel 2 XL Phone',
     desc: '128 Gig memory, Verizon, 5.2 inch screen',
     price: 825.00,
+    stock: 0
+  },
+  {
+    sku: 134,
+    name: 'RockShox Shock pump',
+    desc: 'High volume, 0 to 300 psi, pressure release valve',
+    price: 37.98,
+    stock: 0
+  },
+  {
+    sku: 244,
+    name: 'Stinger Waffles Cinnamon Apple',
+    desc: 'pack of 16',
+    price: 14.43,
+    stock: 0
+  },
+  {
+    sku: 733,
+    name: 'Fox DPS Evolution Shock',
+    desc: '2017 Factory, Kashima, 3 rebound settings',
+    price: 297.00,
+    stock: 0
+  },
+  {
+    sku: 322,
+    name: 'Miele Whole Bean Coffee System',
+    desc: 'Cup sensor, water filtration, auto grind and rinsing',
+    price: 3899.00,
+    stock: 0
+  },
+  {
+    sku: 244,
+    name: 'Bakers Pride PX-14 Countertop Pizza Oven',
+    desc: '20 inches wide, pull out crumb tray, 1500 watt',
+    price: 525.00,
+    stock: 0
+  },
+  {
+    sku: 733,
+    name: 'LG 86-inch LED Smart TV',
+    desc: '4K resolution, 376 button remote, ThinQ AI, Dolby UltraMax Surround sound.',
+    price: 3996.99,
+    stock: 0
+  },
+  {
+    sku: 322,
+    name: 'Boomer & George Beacon Dog House',
+    desc: 'With sunning side deck, 52L x 30W x 38H in., Fir wood construction with asphalt roofing',
+    price: 3899.00,
     stock: 0
   }
 ];
@@ -126,7 +175,36 @@ export const inventories: InventoryRecord[] = [
   {
     sku: 588,
     stock: 41
-  }
+  },
+
+  {
+    sku: 134,
+    stock: 16
+  },
+  {
+    sku: 244,
+    stock: 191
+  },
+  {
+    sku: 733,
+    stock: 9
+  },
+  {
+    sku: 322,
+    stock: 2
+  },
+  {
+    sku: 244,
+    stock: 8
+  },
+  {
+    sku: 733,
+    stock: 17
+  },
+  {
+    sku: 322,
+    stock: 26
+  }  
 ];
 
 // Stackblitz project:  https://stackblitz.com/edit/angular-n7fm41?file=src%2Fapp%2Fhero-detail%2Fhero-detail.component.ts

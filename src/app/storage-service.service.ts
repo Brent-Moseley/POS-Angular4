@@ -85,9 +85,11 @@ export class StorageService {
       observer.error("Order not found.");
     }
     else {
+      var pattern = this.searchPattern.toLowerCase();
       data.forEach( line => {
         let li = <LineItem>line;   // cast each generic object to a LineItem
-        if (li.description.indexOf(this.searchPattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
+        let test = line.description.toLowerCase();
+        if (test.indexOf(pattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
       }); 
     }
     observer.complete();
@@ -97,12 +99,14 @@ export class StorageService {
   });
 
   searchResultsAll: Observable<LineItem> = new Observable((observer) => {
+    var pattern = this.searchPattern.toLowerCase();
     this.orderList.forEach( order => {
       var data = JSON.parse(localStorage.getItem("POS2Order" + order));
       data.forEach( line => {
         let li = <LineItem>line;   // cast each generic object to a LineItem
+        let test = line.description.toLowerCase();
         if (!li.orderFrom) li.orderFrom = order;    // patch for old data.
-        if (li.description.indexOf(this.searchPattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
+        if (test.indexOf(pattern) > -1) observer.next(li);  // if a match, call the next function of the observer with this line item
       }); 
     });
     observer.complete(); 

@@ -166,7 +166,7 @@ export class PosSystemComponent implements OnInit {
     console.log(order);
     if (this.edits)  {
       this.modalService.setModalTitle('Warning!');
-      this.modalService.setModalBody('Loading will wipe out your current order. Continue?');
+      this.modalService.setModalBody('Loading will wipe out your unsaved changes to this order. Continue?');
       this.modalService.setButtons('Continue', 'Cancel');
       $('#messageModal').show();
       this.subscription = this.modalService.modalResponseSource$.subscribe(
@@ -269,6 +269,11 @@ export class PosSystemComponent implements OnInit {
 // Confirm good design practices:  do my components only have logic related to the view?  Are data structural / processing tasks left
 // to the services?
 // How to make better use of interfaces?  Extending classes?  Static properties?  Interfaces?
+// Test for responsiveness.
+// Add some TDD.
+// Make 508 compliant
+// Create product catalog service.
+// Create Express backend.
 //
 // Create good-looking, fun to use, highly functional web apps.  Make them dynamic and highly interactive in ways that convey
 // understanding, usefulness, and innovation.  Make the UI clean, well-organized and helpful to the user as well as 

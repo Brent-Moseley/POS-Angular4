@@ -13,6 +13,7 @@ import { OrderSummaryComponent } from './order-summary/order-summary.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { ModalComponent } from './modal/modal.component';
 import { OrderDropDownComponent } from './order-drop-down/order-drop-down.component';
+import { TruncatePipe } from './truncate.pipe';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { OrderDropDownComponent } from './order-drop-down/order-drop-down.compon
     OrderSummaryComponent,
     SearchResultsComponent,
     ModalComponent,
-    OrderDropDownComponent
+    OrderDropDownComponent,
+    TruncatePipe
   ],
   imports: [
     BrowserModule,
