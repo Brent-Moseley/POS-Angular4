@@ -49,7 +49,8 @@ export class SearchResultsComponent implements OnInit {
 
     	// call the search method of the storage service, passing in an observer object to handle the results
     	this.storageService.search(pattern, this.orderToSearch, {
-    	  next: line => { console.log(line); this.searchResults.push(line); lineCount++; },
+        next: line => { console.log(line); this.searchResults.push(line); lineCount++; },
+        // add error function
     	  complete: () => { 
           console.log('Finished sequence of search results.');  
           this.checkSearchResults(lineCount); 
