@@ -5,3 +5,7 @@
     -moz-box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
     box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
 }
+
+#totals {
+    font-weight: bold;
+}

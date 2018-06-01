@@ -14,3 +14,12 @@
     -moz-box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
     box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
 }
+
+.control-group-custom {
+    margin-bottom: 1em; 
+    background-color:#ededf7;
+    -webkit-box-shadow: 1px 1px 5px 0px rgba(148,145,148,1);
+    -moz-box-shadow: 1px 1px 5px 0px rgba(148,145,148,1);
+    box-shadow: 1px 1px 5px 0px rgba(148,145,148,1);
+    width: 50%;
+}

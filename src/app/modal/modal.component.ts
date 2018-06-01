@@ -49,7 +49,6 @@ export class ModalComponent implements OnInit {
   close(cont: string, value: string) {
     if (this.showInput && cont) this.modalService.setModalResponse(value);
     else this.modalService.setModalResponse(cont);
-    console.log('Closing');
   	$('#messageModal').hide();
   }
 

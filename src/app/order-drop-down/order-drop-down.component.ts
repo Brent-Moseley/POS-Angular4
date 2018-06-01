@@ -26,7 +26,6 @@ export class OrderDropDownComponent implements OnInit {
 
   onOptionsSelected(event){
     console.log(event); //option value will be sent as event
-    //debugger;
     this.change.emit(event);
   }
 

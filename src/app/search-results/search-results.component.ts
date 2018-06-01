@@ -46,7 +46,8 @@ export class SearchResultsComponent implements OnInit {
 
     	// call the search method of the storage service, passing in an observer object to handle the results
     	this.storageService.search(pattern, this.orderToSearch, {
-        next: line => { 
+        next: line => {
+          console.log('Search result line:');
           console.log(line); 
           this.searchResults.push(line); 
           lineCount++; 
@@ -72,7 +73,6 @@ export class SearchResultsComponent implements OnInit {
       $('#messageModal').show();
         this.subscription = this.modalService.modalResponseSource$.subscribe(
           response => {
-            console.log('modal reply no search results to show: ' + response);
             this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
           }
         );      

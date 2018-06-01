@@ -125,33 +125,37 @@ export class PosSystemComponent implements OnInit {
     this.modalService.setModalBody('Enter a name for the new order:');  // TODO:  Check this.edits before doing this.
     this.modalService.setModalShowInput(true);
     this.modalService.setButtons('Continue', 'Cancel');
-    //debugger;
     $('#messageModal').show();
-    var aa = $('#messageModal');
-    console.log('After open: ');
-    console.log(aa);
     this.subscription = this.modalService.modalResponseSource$.subscribe(
       response => {
-        console.log('create new order response: ' + response);
-        debugger;
         this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
         this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
         if (response) {
-          // TODO: Make sure new order name does not already exist
-          this.order = [];
-          this.currentOrder = response;
-          this.edits = false;
-          this.inventoryService.getInventories()
-            .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
-              this.setStockLevels(inv);
-              this.allowAdd = true;
-              this.toastr.success('New order created.', 'Success!');          
-            });
+          // Make sure new order name does not already exist
+          this.storageService.getOrderList()
+          .then(orders => {   // handle resolve of promise, passing in string[].
+            if (orders.find(function(elem) { return elem == response; })) {
+              this.toastr.error('Order already exists!  Please try a different name.');
+            }
+            else this.finalCreateOrder(response);
+          });
         }
       }
     );
-
   }
+
+  finalCreateOrder(name) {
+    this.order = [];
+    this.currentOrder = name;
+    this.edits = false;
+    this.inventoryService.getInventories()
+      .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
+        this.setStockLevels(inv);
+        this.allowAdd = true;
+        this.toastr.success('New order created.', 'Success!');          
+      });
+  }
+
 
   remove(currentOrder)  {
     this.modalService.setModalTitle('Delete Current Order');

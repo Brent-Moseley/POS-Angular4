@@ -41,7 +41,6 @@ export class StorageService {
 
   saveOrder(order: LineItem[], id: string): void {
     console.log('Saving order: ' + id);
-    debugger;
     try {
       if (this.orderList.findIndex(function (e) {return e === id;}) == -1) {
         // This is a new order, add to the list
