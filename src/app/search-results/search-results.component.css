@@ -6,3 +6,11 @@
 .medium-margin {
 	margin: 8px;
 }
+
+.panel-heading-custom {
+    margin-bottom: 1em; 
+    background-color:#e4e4ed;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
+    box-shadow: 2px 2px 5px 0px rgba(148,145,148,1);
+}

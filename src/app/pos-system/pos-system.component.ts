@@ -56,23 +56,23 @@ export class PosSystemComponent implements OnInit {
   }
 
   orderUpdated(event) {
-    //debugger;
-    this.currentOrder = event.target.value;
+    if (typeof event.target != "undefined") this.currentOrder = event.target.value;
     this.load(this.currentOrder);
   }
 
   setStockLevels(inv: InventoryRecord[]) {
-    console.log('Set initial inventories:');
     this.products.forEach(prod => {
-      console.log ('  sku:' + prod.sku);
       inv.forEach(line => {
-        if (line.sku == prod.sku) { console.log ('     set to: ' + line.stock); prod.stock = line.stock;  } // Set initial stock values from levels returned by service.
+        if (line.sku == prod.sku) { 
+          prod.stock = line.stock;  
+        } // Set initial stock values from levels returned by service.
         // TODO:  no way to break from forEach, refactor to use for loop with break for performance increase.
       });
     });
   }
 
   createForm() {
+    // Create form with default values.
     this.posForm = this.fb.group({
       quantity: '',
       product: ['', Validators.required],
@@ -103,17 +103,38 @@ export class PosSystemComponent implements OnInit {
     this.toastr.success('Order saved.', 'Success!');
   }
 
+
   newOrder() {
+    if (this.edits) {
+      this.modalService.setModalTitle('Create New Order');
+      this.modalService.setModalBody('Current order has not been saved. Continuing with a new order' + 
+        ' will lose any updates you have made since last saving. Please save current order and try again.');
+        this.modalService.setButtons('OK', '');
+      $('#messageModal').show();
+      this.subscription = this.modalService.modalResponseSource$.subscribe(
+        response => {
+          this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
+          this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
+        });
+    }
+    else this.createNewOrder();
+  }
+
+  createNewOrder() {
     this.modalService.setModalTitle('Create New Order');
     this.modalService.setModalBody('Enter a name for the new order:');  // TODO:  Check this.edits before doing this.
     this.modalService.setModalShowInput(true);
     this.modalService.setButtons('Continue', 'Cancel');
+    //debugger;
     $('#messageModal').show();
+    var aa = $('#messageModal');
+    console.log('After open: ');
+    console.log(aa);
     this.subscription = this.modalService.modalResponseSource$.subscribe(
       response => {
-        console.log('modal reply confirm : ' + response);
+        console.log('create new order response: ' + response);
+        debugger;
         this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
-        //if (response) this.loadAll(order);
         this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
         if (response) {
           // TODO: Make sure new order name does not already exist
@@ -139,9 +160,7 @@ export class PosSystemComponent implements OnInit {
     $('#messageModal').show();
     this.subscription = this.modalService.modalResponseSource$.subscribe(
       response => {
-        console.log('modal reply confirm : ' + response);
         this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
-        //if (response) this.loadAll(order);
         this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
         if (response) {
           debugger;
@@ -163,7 +182,7 @@ export class PosSystemComponent implements OnInit {
 
   //getInventory
   load(order: string) {
-    console.log(order);
+    console.log("Now loading order: " + order);
     if (this.edits)  {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your unsaved changes to this order. Continue?');
@@ -171,7 +190,6 @@ export class PosSystemComponent implements OnInit {
       $('#messageModal').show();
       this.subscription = this.modalService.modalResponseSource$.subscribe(
         response => {
-          console.log('modal reply confirm : ' + response);
           this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
           if (response) this.loadAll(order);
         }
@@ -186,19 +204,14 @@ export class PosSystemComponent implements OnInit {
     this.storageService.getOrder(orderName)
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
-        // TODO:  move this logic to the services, this is the kind of thing they should be doing, UI just gets
+        // TODO:  move this logic to a service, this is the kind of logic a service should be doing, UI just gets
         // the order as well as the updated stock.  Update this when creating a catalog service.
         this.inventoryService.getInventories()
           .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>.  Update to observable later.
             this.setStockLevels(inv);
-            //console.log ('This.products before setting levels:');
-            //console.log(JSON.stringify(this.products));
             this.products.forEach((prod) => {
               order.forEach(line => {
                 if (line.sku == prod.sku) {
-                  // console.log ('product match:');
-                  // console.log ('   '+ JSON.stringify(prod));
-                  // console.log ('   reduce by:' + JSON.stringify(line));
                   prod.stock -= line.qty;  // Reduce stock levels based on order line.
                 }
               });
@@ -207,7 +220,6 @@ export class PosSystemComponent implements OnInit {
             this.calculateTotal();
             this.selectedProduct = this.products[0];
             this.productMax = this.products[0].stock;
-            //console.log ('Updated product Max to: ' + this.productMax);
             this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});  // reset form values
             this.loading = false;
             this.currentOrder = orderName;
@@ -240,11 +252,6 @@ export class PosSystemComponent implements OnInit {
     this.toastr.success('Item added.', 'Success!');
   }
 
-  // search(val) {
-  //   // Use observable to implement a search feature, find a line item, return in a separate results box, which is a new component.
-    
-  // }
-
   calculateTotal() {
     var totalItems = 0;
     var totalDiscount = 0.0;
@@ -275,6 +282,7 @@ export class PosSystemComponent implements OnInit {
 // Create product catalog service.
 // Create Express backend.
 //
+// MISSION
 // Create good-looking, fun to use, highly functional web apps.  Make them dynamic and highly interactive in ways that convey
 // understanding, usefulness, and innovation.  Make the UI clean, well-organized and helpful to the user as well as 
 // adaptable to different kinds of users. Use good software design patterns and concepts such as efficiency, DRY, elegant

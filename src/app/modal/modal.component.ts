@@ -18,14 +18,12 @@ export class ModalComponent implements OnInit {
     this.modalService.modalTitleSource$.subscribe(
       title => {
         this.title = title;
-        console.log('New modal title: ' + title);
       }
     );
 
     this.modalService.modalBodySource$.subscribe(
       body => {
         this.body = body;
-        console.log('New modal body: ' + body);
       }
     );
     this.modalService.modalShowInputSource$.subscribe(
@@ -51,6 +49,7 @@ export class ModalComponent implements OnInit {
   close(cont: string, value: string) {
     if (this.showInput && cont) this.modalService.setModalResponse(value);
     else this.modalService.setModalResponse(cont);
+    console.log('Closing');
   	$('#messageModal').hide();
   }
 

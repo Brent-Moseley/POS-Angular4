@@ -26,6 +26,7 @@ export class ModalService {
 
   // Service message commands
   setModalTitle(title: string) {
+    console.log('Title update: ' + title);
     this.modalTitleSource.next(title);
   }
 

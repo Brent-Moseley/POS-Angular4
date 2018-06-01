@@ -19,6 +19,7 @@ export class StorageService {
       try {
           var data = JSON.parse(localStorage.getItem("POS2Order" + id));
           var set : LineItem[] = [];
+          if (data === null) throw "Unable to load order!";
           data.forEach( line => {
             set.push(<LineItem>line);  // cast each generic object to a LineItem
           }); 

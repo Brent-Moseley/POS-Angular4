@@ -3,3 +3,7 @@
 [hidden] {
   display: none !important;
 }
+
+.panel-default {
+  border-width: 2px;
+}

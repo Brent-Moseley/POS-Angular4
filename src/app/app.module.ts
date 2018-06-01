@@ -14,6 +14,7 @@ import { SearchResultsComponent } from './search-results/search-results.componen
 import { ModalComponent } from './modal/modal.component';
 import { OrderDropDownComponent } from './order-drop-down/order-drop-down.component';
 import { TruncatePipe } from './truncate.pipe';
+import { ShowPercentPipe } from './show-percent.pipe';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { TruncatePipe } from './truncate.pipe';
     SearchResultsComponent,
     ModalComponent,
     OrderDropDownComponent,
-    TruncatePipe
+    TruncatePipe,
+    ShowPercentPipe
   ],
   imports: [
     BrowserModule,

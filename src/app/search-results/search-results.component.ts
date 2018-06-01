@@ -24,10 +24,7 @@ export class SearchResultsComponent implements OnInit {
   }
 
   orderSelected(event) {
-    //debugger;
-    // TODO:  Do search across all orders.  For now, just a simple search demonstrating reusable components.
-    this.orderToSearch = event.target.value;
-    //this.search(this.currentOrder);
+    if (typeof event.target != "undefined") this.orderToSearch = event.target.value;
   }
 
   search(pattern: string) {
@@ -49,8 +46,15 @@ export class SearchResultsComponent implements OnInit {
 
     	// call the search method of the storage service, passing in an observer object to handle the results
     	this.storageService.search(pattern, this.orderToSearch, {
-        next: line => { console.log(line); this.searchResults.push(line); lineCount++; },
-        // add error function
+        next: line => { 
+          console.log(line); 
+          this.searchResults.push(line); 
+          lineCount++; 
+        },
+        error: err => { 
+          console.log ('Error from search: '); 
+          console.log(err); 
+        },
     	  complete: () => { 
           console.log('Finished sequence of search results.');  
           this.checkSearchResults(lineCount); 
