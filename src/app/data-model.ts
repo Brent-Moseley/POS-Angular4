@@ -206,6 +206,3 @@ export const inventories: InventoryRecord[] = [
     stock: 26
   }  
 ];
-
-// Stackblitz project:  https://stackblitz.com/edit/angular-n7fm41?file=src%2Fapp%2Fhero-detail%2Fhero-detail.component.ts
-// https://hackernoon.com/understanding-creating-and-subscribing-to-observables-in-angular-426dbf0b04a3

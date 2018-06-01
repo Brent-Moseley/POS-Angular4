@@ -53,6 +53,3 @@ export class ModalComponent implements OnInit {
   }
 
 }
-
-
-// TODO:  upgrade to this:  https://ng-bootstrap.github.io/#/components/modal/examples

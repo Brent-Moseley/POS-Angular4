@@ -116,15 +116,3 @@ export class StorageService {
   });
 
 }
-
-/*
-  TODO: Update to include an order dropdown with a list of orders - This will be based on an order number (auto-generated),
-  and a name field.  In the search component, include this dropdown of where to search from. When switching orders, have a 
-  modal prompt to save if needed. Add a create new button. 
-  TODO:  Also add line item delete.  
-*/
-// http://choly.ca/post/typescript-json/
-// http://cloudmark.github.io/Json-Mapping/
-// https://angular.io/guide/observables
-// 2851
-// https://x-team.com/blog/rxjs-observables/ 

@@ -33,8 +33,3 @@ export class OrderDropDownComponent implements OnInit {
   }
 
 }
-
-// https://toddmotto.com/component-events-event-emitter-output-angular-2
-// https://stackoverflow.com/questions/46925014/how-to-bind-selected-value-to-dropdown-list-in-angular-4
-// https://angular.io/guide/component-interaction
-
