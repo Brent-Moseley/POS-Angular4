@@ -23,3 +23,8 @@
     box-shadow: 1px 1px 5px 0px rgba(148,145,148,1);
     width: 50%;
 }
+
+.heavier {
+    font-weight: bold;
+    color: #777;
+}

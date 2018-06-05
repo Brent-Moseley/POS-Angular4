@@ -6,7 +6,7 @@
     <form [formGroup]="posForm" (ngSubmit)="onSubmit()" role="form" class="panel-body form-horizontal" novalidate>
       <div class="control-group-custom">
         <span style="margin: 4px;"><h4>Current Order: {{currentOrder}}</h4></span>
-        <app-order-drop-down (change)="orderUpdated($event)" [loading]="loading" [showAll]="false"></app-order-drop-down>
+        <app-order-drop-down (changed)="orderUpdated($event)" [loading]="loading" [showAll]="false"></app-order-drop-down>
         <button type="reset" (click)="load(currentOrder)" [hidden]="loading" class="btn btn-info" [disabled]="!allowAdd"
           style="margin-bottom: 10px;">
           Re-Load Current

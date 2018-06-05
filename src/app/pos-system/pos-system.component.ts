@@ -56,7 +56,8 @@ export class PosSystemComponent implements OnInit {
   }
 
   orderUpdated(event) {
-    if (typeof event.target != "undefined") this.currentOrder = event.target.value;
+    //if (typeof event.target != "undefined") this.currentOrder = event.target.value;
+    this.currentOrder = event;
     this.load(this.currentOrder);
   }
 
@@ -102,7 +103,6 @@ export class PosSystemComponent implements OnInit {
     this.edits = false;
     this.toastr.success('Order saved.', 'Success!');
   }
-
 
   newOrder() {
     if (this.edits) {
@@ -167,7 +167,6 @@ export class PosSystemComponent implements OnInit {
         this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
         this.modalService.setModalShowInput(false);   // Make sure to reset this, maybe a better way to do this.
         if (response) {
-          debugger;
           this.order = [];
           this.edits = false;
           this.allowAdd = false;
@@ -186,6 +185,7 @@ export class PosSystemComponent implements OnInit {
 
   //getInventory
   load(order: string) {
+    this.loading = true;
     console.log("Now loading order: " + order);
     if (this.edits)  {
       this.modalService.setModalTitle('Warning!');
@@ -196,6 +196,7 @@ export class PosSystemComponent implements OnInit {
         response => {
           this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
           if (response) this.loadAll(order);
+          else this.loading = false;
         }
       );
     }
@@ -238,7 +239,6 @@ export class PosSystemComponent implements OnInit {
     this.quantityUpdated(qty);
     this.discountUpdated(percentOff);
     if (this.discountError == true || this.quantityError == true) return;
-
     this.order.push({
     	product: 1, 
       sku: product.sku,

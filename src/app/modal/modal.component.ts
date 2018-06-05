@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ModalService } from '../modal-service.service';
 import $ = require('jquery');
 
@@ -13,6 +13,8 @@ export class ModalComponent implements OnInit {
   showInput: boolean = false;
   buttonPrimary: string = '';
   buttonSecondary: string = '';
+
+  @ViewChild('val') inputElement: ElementRef;
 
   constructor(private modalService: ModalService) {
     this.modalService.modalTitleSource$.subscribe(
@@ -29,6 +31,7 @@ export class ModalComponent implements OnInit {
     this.modalService.modalShowInputSource$.subscribe(
       show => {
         this.showInput = show;
+        if (show) this.inputElement.nativeElement.focus();  // TODO:  Focus does not work yet.
       }
     );
     this.modalService.modalButtonPrimary$.subscribe(
@@ -49,7 +52,7 @@ export class ModalComponent implements OnInit {
   close(cont: string, value: string) {
     if (this.showInput && cont) this.modalService.setModalResponse(value);
     else this.modalService.setModalResponse(cont);
-  	$('#messageModal').hide();
+  	$('#messageModal').hide();     // TODO: can probably use [hidden] property here instead. 
   }
 
 }

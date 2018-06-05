@@ -46,7 +46,7 @@ export class StorageService {
         // This is a new order, add to the list
         console.log('(new order)');
         this.orderList.push(id);
-        console.log('New list is:');
+        console.log('Updated order list is:');
         console.log(this.orderList);
         localStorage.setItem("orders", JSON.stringify(this.orderList));
       }

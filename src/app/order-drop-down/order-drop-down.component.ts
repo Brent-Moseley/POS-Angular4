@@ -22,11 +22,10 @@ export class OrderDropDownComponent implements OnInit {
   @Input() loading: boolean;
   @Input() showAll: boolean;
   @Output()
-  change: EventEmitter<string> = new EventEmitter<string>();
+  changed: EventEmitter<string> = new EventEmitter<string>();
 
   onOptionsSelected(event){
-    console.log(event); //option value will be sent as event
-    this.change.emit(event);
+    this.changed.emit(event);
   }
 
   ngOnInit() {
