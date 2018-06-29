@@ -60,7 +60,7 @@
 
 class Token {
     file: string; // a, b, c, ... h left to right
-    rank: number;  // 8 .. 1, top to bottom
+    rank: number;  // 1 .. 8, bottom to top
     color: string;  // white or red
     king: boolean;
     constructor (file: string, rank: number, color: string, king: boolean) {
@@ -75,27 +75,65 @@ let Board2: Token[];
 
 class Board {
     board: Token[];
+    files: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     constructor (board) {
-        board = board;
+        this.board = board;
     }
 
     show() {
-        
+        let whiteSq = true;
+        let printLine = '';
+        for (var rank = 8; rank > 0; rank--) {
+            printLine = '';
+            for (var file = 0; file < 8; file++) {
+                let tokenFound = null;
+                this.board.forEach(el => {
+                    if (el.rank == rank && el.file == this.files[file]) tokenFound = el; 
+                });
+                if (tokenFound) {
+                    if (whiteSq) printLine += '_' + tokenFound.color + '_ ';
+                    else printLine += '[' + tokenFound.color + '] ';
+                }
+                else if (whiteSq) printLine += '___ ';
+                else printLine += '[_] ';
+                whiteSq = !whiteSq;
+            }
+            console.log(printLine);
+        }
+
     }
 }
 
 let startingBoard = [
-    new Token('b', 1, 'w', false),
-    new Token('d', 1, 'w', false),
-    new Token('f', 1, 'w', false),
-    new Token('h', 1, 'w', false),
-    new Token('a', 2, 'w', false),
-    new Token('c', 1, 'w', false),
-    new Token('e', 1, 'w', false),
-    new Token('g', 1, 'w', false)
+    new Token('b', 8, 'w', false),
+    new Token('d', 8, 'w', false),
+    new Token('f', 8, 'w', false),
+    new Token('h', 8, 'w', false),
+    new Token('a', 7, 'w', false),
+    new Token('c', 7, 'w', false),
+    new Token('e', 7, 'w', false),
+    new Token('g', 7, 'w', false),
+    new Token('b', 6, 'w', false),
+    new Token('d', 6, 'w', false),
+    new Token('f', 6, 'w', false),
+    new Token('h', 6, 'w', false),
+    new Token('a', 3, 'r', false),
+    new Token('c', 3, 'r', false),
+    new Token('e', 3, 'r', false),
+    new Token('g', 3, 'r', false),
+    new Token('a', 2, 'r', false),
+    new Token('c', 2, 'r', false),
+    new Token('e', 2, 'r', false),
+    new Token('g', 2, 'r', false),
+    new Token('a', 1, 'r', false),
+    new Token('c', 1, 'r', false),
+    new Token('e', 1, 'r', false),
+    new Token('g', 1, 'r', false)
 
-]
+];
 
+let board = new Board(startingBoard);
+board.show();
 // use ts-node to run from command line. 
 
 class PentaDie {

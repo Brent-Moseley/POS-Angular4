@@ -13,8 +13,23 @@ export class StorageService {
     this.orderList = JSON.parse(localStorage.getItem("orders"));
   }
 
-  getOrder(id: string): Promise<LineItem[]> {   // returns a Promise of type LineItem array.
+  getNameFirstOrder(): Promise<string> {
+    return new Promise(resolve => {
+      let orderName = this.orderList[0] ? this.orderList[0] : null;
+      setTimeout(() => resolve(orderName), 75);
+    });
+  }
+
+  getOrder(id: string, loadFirst: boolean): Promise<LineItem[]> {   // returns a Promise of type LineItem array.
     console.log('Getting order: ' + id);
+    if (loadFirst && this.orderList.length > 0) {
+      id = this.orderList[0];
+    }
+    if (loadFirst && this.orderList.length == 0) {
+      console.log ('Load first was set to true but no orders exist.  Returning null');
+      return null;
+    }
+
     return new Promise(resolve => {
       try {
           var data = JSON.parse(localStorage.getItem("POS2Order" + id));

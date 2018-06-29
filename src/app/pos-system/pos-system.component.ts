@@ -51,14 +51,16 @@ export class PosSystemComponent implements OnInit {
     storageService.search("", "POS2Order", {
       next(line) { lnum++; console.log('Current Order line ' + lnum + ': ', line); },
       error(msg) { console.log('Error Getting order: ', msg); }
-    });      
+    });
+
+    this.load('', true);    // Attempt to load the first order on the system, on first page load.
     // End sample
   }
 
   orderUpdated(event) {
     //if (typeof event.target != "undefined") this.currentOrder = event.target.value;
     this.currentOrder = event;
-    this.load(this.currentOrder);
+    this.load(this.currentOrder, false);
   }
 
   setStockLevels(inv: InventoryRecord[]) {
@@ -175,7 +177,8 @@ export class PosSystemComponent implements OnInit {
           this.inventoryService.getInventories()
             .then(inv => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
               this.setStockLevels(inv);
-              this.toastr.success('Order deleted from the system. Adios!!', 'Success!');          
+              this.toastr.success('Order deleted from the system. Adios!!', 'Success!');
+              this.load('', true);
             });
         }
       }
@@ -184,9 +187,10 @@ export class PosSystemComponent implements OnInit {
   }
 
   //getInventory
-  load(order: string) {
+  load(order: string, loadFirst: boolean) {
     this.loading = true;
-    console.log("Now loading order: " + order);
+    if (loadFirst) console.log('Attempting to load first order');
+    else console.log("Now loading order: " + order);
     if (this.edits)  {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your unsaved changes to this order. Continue?');
@@ -195,18 +199,23 @@ export class PosSystemComponent implements OnInit {
       this.subscription = this.modalService.modalResponseSource$.subscribe(
         response => {
           this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
-          if (response) this.loadAll(order);
+          if (response) this.loadAll(order, false);
           else this.loading = false;
         }
       );
     }
-    else this.loadAll(order);
+    else this.loadAll(order, loadFirst);
   }
 
-  loadAll(orderName: string) {
+  loadAll(orderName: string, loadFirst: boolean) {
     this.loading = true;
     this.edits = false;
-    this.storageService.getOrder(orderName)
+    if (loadFirst) this.storageService.getNameFirstOrder()
+      .then(orderName => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
+        this.currentOrder = orderName;
+      });
+
+    this.storageService.getOrder(orderName, loadFirst)
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
         // TODO:  move this logic to a service, this is the kind of logic a service should be doing, UI just gets
@@ -227,7 +236,7 @@ export class PosSystemComponent implements OnInit {
             this.productMax = this.products[0].stock;
             this.posForm.setValue({percent_off: 0, quantity: 0, product: this.products[0]});  // reset form values
             this.loading = false;
-            this.currentOrder = orderName;
+            if (!loadFirst) this.currentOrder = orderName;
             this.edits = false; 
             this.allowAdd = true; 
           });
