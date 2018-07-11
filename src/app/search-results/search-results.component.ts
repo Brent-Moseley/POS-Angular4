@@ -32,13 +32,13 @@ export class SearchResultsComponent implements OnInit {
       this.modalService.setModalTitle('Cannot perform search:');
       this.modalService.setModalBody('Please enter a search string and select an order from the dropdown.');
       this.modalService.setButtons('OK', '');
-      $('#messageModal').show();
-          this.subscription = this.modalService.modalResponseSource$.subscribe(
-          response => {
-            console.log('modal reply search pattern does not exist: ' + response);
-            this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
-          }
-        );      
+      this.showModal('#modal-bp');
+      this.subscription = this.modalService.modalResponseSource$.subscribe(
+      response => {
+        console.log('modal reply search pattern does not exist: ' + response);
+        this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
+      }
+    );      
     }
     else {
     	this.searchResults = [];
@@ -70,13 +70,20 @@ export class SearchResultsComponent implements OnInit {
       this.modalService.setModalTitle('No Results:');
       this.modalService.setModalBody('No order lines were found matching your search string.');
       this.modalService.setButtons('OK', '');
-      $('#messageModal').show();
-        this.subscription = this.modalService.modalResponseSource$.subscribe(
-          response => {
-            this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
-          }
-        );      
+      this.showModal('#modal-bp');
+      this.subscription = this.modalService.modalResponseSource$.subscribe(
+        response => {
+          this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
+        }
+      );      
     }
+  }
+
+  showModal(focus: string) {
+    $('#messageModal').show();
+    if (focus && focus.length > 0) setTimeout(function() {
+      $(focus).focus();
+    }, 100);  // wait for popup to active, then set focus on element desired, if given.
   }
 
 }

@@ -112,7 +112,7 @@ export class PosSystemComponent implements OnInit {
       this.modalService.setModalBody('Current order has not been saved. Continuing with a new order' + 
         ' will lose any updates you have made since last saving. Please save current order and try again.');
         this.modalService.setButtons('OK', '');
-      $('#messageModal').show();
+      this.showModal('#modal-bp');
       this.subscription = this.modalService.modalResponseSource$.subscribe(
         response => {
           this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
@@ -127,7 +127,7 @@ export class PosSystemComponent implements OnInit {
     this.modalService.setModalBody('Enter a name for the new order:');  // TODO:  Check this.edits before doing this.
     this.modalService.setModalShowInput(true);
     this.modalService.setButtons('Continue', 'Cancel');
-    $('#messageModal').show();
+    this.showModal('#modal-input');
     this.subscription = this.modalService.modalResponseSource$.subscribe(
       response => {
         this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
@@ -159,11 +159,12 @@ export class PosSystemComponent implements OnInit {
   }
 
 
+
   remove(currentOrder)  {
     this.modalService.setModalTitle('Delete Current Order');
     this.modalService.setModalBody('Really delete current order from the system?  You cannot undo this.');
     this.modalService.setButtons('Yes', 'Cancel');
-    $('#messageModal').show();
+    this.showModal('#modal-bs');
     this.subscription = this.modalService.modalResponseSource$.subscribe(
       response => {
         this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
@@ -195,7 +196,7 @@ export class PosSystemComponent implements OnInit {
       this.modalService.setModalTitle('Warning!');
       this.modalService.setModalBody('Loading will wipe out your unsaved changes to this order. Continue?');
       this.modalService.setButtons('Continue', 'Cancel');
-      $('#messageModal').show();
+      this.showModal('#modal-bs');
       this.subscription = this.modalService.modalResponseSource$.subscribe(
         response => {
           this.subscription.unsubscribe();  //  No longer want modal responses, so unsubscribe.
@@ -210,11 +211,18 @@ export class PosSystemComponent implements OnInit {
   loadAll(orderName: string, loadFirst: boolean) {
     this.loading = true;
     this.edits = false;
-    if (loadFirst) this.storageService.getNameFirstOrder()
+    if (loadFirst) {
+      // If loading first order, need to get the name of the first order along with the line items, so first get the name.
+      this.storageService.getNameFirstOrder()
       .then(orderName => {   // handle resolve of promise, passing in <InventoryRecord[]>. Alternate to using observable.
         this.currentOrder = orderName;
+        this.getOrder(orderName, loadFirst);
       });
+    }
+    else this.getOrder(orderName, loadFirst);
+  }
 
+  getOrder(orderName: string, loadFirst: boolean) {
     this.storageService.getOrder(orderName, loadFirst)
       .then(order => {   // handle resolve of promise, passing in [<LineItem>].
         // reset stock quantities from Inventory Service, then subtract from quantities from all order lines.
@@ -278,6 +286,13 @@ export class PosSystemComponent implements OnInit {
     this.summary.totalItems = totalItems;
     this.summary.totalDiscount = totalDiscount;
     this.summary.orderTotal = orderTotal;
+  }
+
+  showModal(focus: string) {
+    $('#messageModal').show();
+    if (focus && focus.length > 0) setTimeout(function() {
+      $(focus).focus();
+    }, 100);  // wait for popup to active, then set focus on element desired, if given.
   }
 
 }
