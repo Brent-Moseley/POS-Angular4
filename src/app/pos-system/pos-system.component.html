@@ -57,7 +57,7 @@
       </div>
       <br /> 
       <button (click)="addItem(selectedProduct, qty.value, percent_off.value)" class="btn btn-success" type="button" [disabled]="!allowAdd">Add Item</button>
-      <button type="submit" [disabled]="posForm.pristine" class="btn btn-primary">Save Order</button>
+      <button type="submit" [disabled]="!allowAdd" class="btn btn-primary">Save Order</button>
       <button type="reset" (click)="remove(currentOrder)" [hidden]="loading" [disabled]="!allowAdd" class="btn btn-info">Delete this Order</button>
     </form>
   </div>
